@@ -47,6 +47,10 @@ yarn-error.log*
 # --- Logs ---
 *.log
 
+# --- Private planning documents ---
+# These files are local only and must never be published.
+PROJECT_PLAN.md
+
 # --- Development & testing artifacts ---
 # These files are local development artefacts and should not
 # be committed to the repository.
