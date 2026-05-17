@@ -1,0 +1,722 @@
+/* ============================================================
+   style-v2.css — Simon Ives
+   UI uplift layer — loads after style.css and takes precedence
+   ============================================================ */
+
+/* ----- 1-2. TYPOGRAPHY VARIABLES ----- */
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* 11. Light mode colour tokens */
+  --color-bg-primary: #F8F6F2;
+  --color-bg-surface: #FFFFFF;
+  --color-text-primary: #111111;
+  --color-text-secondary: #555550;
+  --color-text-tertiary: #999990;
+  --color-border: rgba(0, 0, 0, 0.10);
+  --color-accent: #8B7355;
+
+  /* Remap legacy tokens from style.css so its var() refs pick up new palette */
+  --color-obsidian: var(--color-bg-primary);
+  --color-slate: var(--color-bg-surface);
+  --color-slate-light: var(--color-bg-surface);
+  --color-gold: var(--color-accent);
+  --color-gold-muted: rgba(139, 115, 85, 0.6);
+  --color-error: #CC3333;
+  --color-success: #2D7A3A;
+  --transition-premium: all 0.3s ease;
+  --container-max: 1200px;
+}
+
+/* 12. Dark mode via system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #111111;
+    --color-bg-surface: #1A1A1A;
+    --color-text-primary: #F0EDE8;
+    --color-text-secondary: #A8A49E;
+    --color-text-tertiary: #666660;
+    --color-border: rgba(255, 255, 255, 0.10);
+    --color-accent: #C4A882;
+    --color-gold: var(--color-accent);
+    --color-obsidian: var(--color-bg-primary);
+    --color-slate: var(--color-bg-surface);
+    --color-slate-light: var(--color-bg-surface);
+  }
+}
+
+/* 41. Dark mode via JS class toggle */
+html.dark {
+  --color-bg-primary: #111111;
+  --color-bg-surface: #1A1A1A;
+  --color-text-primary: #F0EDE8;
+  --color-text-secondary: #A8A49E;
+  --color-text-tertiary: #666660;
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-accent: #C4A882;
+  --color-gold: var(--color-accent);
+  --color-obsidian: var(--color-bg-primary);
+  --color-slate: var(--color-bg-surface);
+  --color-slate-light: var(--color-bg-surface);
+}
+
+/* ----- BASE ----- */
+* { box-sizing: border-box; }
+
+/* 13-14. Body base */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 17px;         /* 5 */
+  line-height: 1.75;       /* 5 */
+  font-weight: 400;        /* 5 */
+  margin: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 44-45. Dark mode body refinements */
+@media (prefers-color-scheme: dark) {
+  body {
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.01em;
+  }
+}
+
+html.dark body {
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+
+/* 39. Paper texture via body::before — overrides style.css gradient */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.04;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E") repeat;
+  background-size: 256px 256px;
+}
+
+@media (prefers-color-scheme: dark) {
+  body::before { opacity: 0.06; }
+}
+
+html.dark body::before { opacity: 0.06; }
+
+/* Disable old style.css body::after grain overlay */
+body::after {
+  content: none;
+}
+
+/* ----- 3. H1 GLOBAL ----- */
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  text-transform: none;
+  margin-bottom: 1.25rem;  /* 27 */
+}
+
+/* 4. H2 global */
+h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  text-transform: none;
+  margin-bottom: 1rem;
+}
+
+h3, h4 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  text-transform: none;
+}
+
+h5 {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 0.75rem;
+}
+
+/* 5. Body text */
+p {
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.75;
+  font-weight: 400;
+  max-width: none;
+  margin-bottom: 1.25rem;
+}
+
+.lead {
+  font-size: 17px;
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+}
+
+/* General links default */
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+
+a:hover {
+  opacity: 0.75;
+}
+
+/* 7. Eyebrow utility class */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);  /* 16 */
+  display: block;
+  margin-bottom: 1.25rem;  /* 26 */
+}
+
+/* ----- LAYOUT ----- */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* 23. Section spacing */
+.section-padding {
+  padding: 4rem 0;
+}
+
+/* 15. Surface background for alternate sections */
+.alternate-bg {
+  background-color: var(--color-bg-surface);
+}
+
+.alternate-bg::before {
+  content: none;
+}
+
+.text-center { text-align: center; }
+.text-center p { margin-left: auto; margin-right: auto; }
+
+/* ----- 32-33. NAVIGATION ----- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-bg-surface);
+  border-bottom: 0.5px solid transparent;
+  transition: border-color 200ms ease;
+  backdrop-filter: none;
+  padding: 1.25rem 0;
+}
+
+.site-header.scrolled {
+  border-color: var(--color-border);
+}
+
+/* 31. Wordmark */
+.logo {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: var(--color-text-primary);
+}
+
+.logo::before {
+  content: none;
+}
+
+/* 31. Phi mark in wordmark */
+.phi-mark {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+/* 6. Nav links */
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text-secondary);
+  position: relative;
+  padding: 0.5rem 0;
+  display: inline-block;
+}
+
+/* 6. Active nav link */
+.nav-links a.active {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* 17. Phronesis nav link */
+.nav-links a.phronesis-link {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.nav-links a.phronesis-link:hover {
+  color: var(--color-accent);
+}
+
+/* 46. Nav link underline micro-interaction */
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-accent);
+  transition: width 200ms ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+.nav-links a:hover {
+  color: var(--color-text-primary);
+  opacity: 1;
+}
+
+/* Briefing CTA link in nav */
+.cta-small {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0.35rem 0.9rem;
+  border: 0.5px solid var(--color-border);
+  color: var(--color-text-secondary) !important;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.cta-small:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent) !important;
+}
+
+/* 41. Theme toggle button */
+#theme-toggle {
+  background: none;
+  border: 0.5px solid var(--color-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: border-color 150ms ease, color 150ms ease;
+  font-family: var(--font-body);
+  line-height: 1;
+}
+
+#theme-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Social icons */
+.header-social {
+  border-left-color: var(--color-border);
+}
+
+.header-social a {
+  color: var(--color-text-tertiary);
+}
+
+.header-social a:hover {
+  color: var(--color-accent);
+  transform: none;
+}
+
+/* ----- 19-22. HERO SECTION ----- */
+.hero {
+  position: relative;         /* 35 */
+  overflow: hidden;           /* 35 */
+  min-height: auto;
+  display: block;
+  align-items: unset;
+  padding-top: 5rem;          /* 19 */
+  padding-bottom: 3rem;       /* 20 */
+  background-color: var(--color-bg-primary);
+}
+
+/* Disable old hero decorative overlays */
+.hero::before,
+.hero::after {
+  content: none;
+}
+
+/* 21. Hero text wrapper */
+.hero-content {
+  max-width: 660px;
+  position: relative;
+  z-index: 2;
+}
+
+/* 22. Hero body paragraph */
+.hero-subheadline {
+  max-width: 540px;
+  border-left: none;
+  padding-left: 0;
+  border-top: none;
+  padding-top: 0;
+  margin-bottom: 1.75rem;  /* 28 */
+  line-height: 1.75;       /* 25 */
+}
+
+.hero-headline {
+  max-width: none;
+  margin-bottom: 1.25rem;  /* 27 */
+}
+
+/* Hero CTA row */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+/* 18. CTA links */
+.cta-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-accent);
+  transition: opacity 150ms ease;
+}
+
+.cta-link:hover {
+  opacity: 0.75;
+}
+
+/* 35. Phi watermark */
+.phi-watermark {
+  position: absolute;
+  right: -0.05em;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(200px, 30vw, 320px);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  opacity: 0.04;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  z-index: 1;
+}
+
+/* 37. Phi accent bar */
+.phi-accent-bar {
+  width: 28px;
+  height: 2px;
+  background: var(--color-text-primary);
+  border-radius: 1px;
+  margin-bottom: 1rem;
+}
+
+/* 24. Hero / engage-section divider */
+.section-divider {
+  border: none;
+  border-top: 0.5px solid var(--color-border);
+  margin: 0;
+}
+
+/* ----- 29. ENGAGE BLOCKS ----- */
+.engage-section {
+  background: var(--color-bg-surface);    /* 15 */
+}
+
+.engage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 2.5rem 2rem;
+}
+
+.engage-block {
+  padding: 1.5rem;
+  background: var(--color-bg-primary);
+  border: 0.5px solid var(--color-border);
+}
+
+/* 10. Engage block tags */
+.engage-tag {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* 9. Engage block titles */
+.engage-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+  text-transform: none;
+  line-height: 1.3;
+}
+
+/* 48. Engage block links */
+.engage-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-accent);
+  display: inline-block;
+  margin-top: 0.75rem;
+  transition: opacity 150ms ease;
+}
+
+.engage-link:hover {
+  opacity: 0.7;
+}
+
+/* ----- 47. CTA BUTTON ----- */
+.cta-button {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border: 0.5px solid var(--color-text-primary);
+  color: var(--color-text-primary);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+  position: static;
+  overflow: visible;
+}
+
+.cta-button::before {
+  content: none;
+}
+
+.cta-button:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+/* ----- 38. PHI SECTION MARK ----- */
+.phi-section-mark {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+  display: block;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+/* ----- DOCTRINE / PORTFOLIO SECTIONS ----- */
+.grid {
+  align-items: flex-start;
+}
+
+/* Meta sidebar labels (portfolio) */
+.meta-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  display: block;
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.meta-sidebar p {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.meta-sidebar .meta-label:first-child {
+  margin-top: 0;
+}
+
+/* ----- FORM ----- */
+.form-group label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background-color: var(--color-bg-surface);
+  border: 0.5px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  transition: border-color 200ms ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--color-accent);
+  background-color: var(--color-bg-surface);
+  outline: none;
+}
+
+.status-box {
+  background-color: var(--color-bg-surface);
+  border: 0.5px solid var(--color-border);
+}
+
+.status-box.error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.status-box.success {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+/* ----- FOOTER ----- */
+.site-footer {
+  background-color: var(--color-bg-primary);
+  border-top: 0.5px solid var(--color-border);
+}
+
+.site-footer p {
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.social-links a {
+  color: var(--color-text-tertiary);
+}
+
+.social-links a:hover {
+  color: var(--color-accent);
+  transform: none;
+}
+
+.manifesto-link {
+  color: var(--color-accent) !important;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 1;
+}
+
+.manifesto-link:hover {
+  opacity: 0.7;
+  letter-spacing: 0;
+}
+
+/* ----- GOVERNANCE ----- */
+.governance-divider {
+  border: none;
+  border-top: 0.5px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+.governance-section h2 {
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 0.75rem;
+}
+
+/* ----- 50-52. MOBILE ----- */
+@media (max-width: 768px) {
+  .nav-links a {
+    font-size: 12px;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .hero {
+    padding-top: 3.5rem;
+    padding-bottom: 2rem;
+    text-align: left;
+  }
+
+  .hero-headline,
+  .hero-subheadline {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* 30 + 52. Engage grid and CTA row collapse */
+@media (max-width: 640px) {
+  .hero-actions {
+    flex-direction: column;   /* 51 */
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .engage-grid {
+    grid-template-columns: 1fr;  /* 30 */
+  }
+}
+
+/* Subsection margin rhythm */
+section {
+  margin-bottom: 0;
+}
