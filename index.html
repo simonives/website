@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Simon Ives: The architect of tech-driven workforce transformation delivering winning productivity. Engineering talent systems for large-scale enterprises.">
-    <title>Simon Ives | The Monopoly Engine</title>
+    <meta name="description" content="Simon Ives, FCPHR, MBA — practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design.">
+    <title>Home — Simon Ives</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Φ</text></svg>">
     <link rel="author" type="text/markdown" href="manifesto.md">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,15 +17,14 @@
       "@context": "https://schema.org",
       "@type": "Person",
       "name": "Simon Ives",
-      "jobTitle": "Chief Architectural Officer of the Human Asset",
-      "description": "Simon Ives: The architect of tech-driven workforce transformation delivering winning productivity. Engineering talent systems for large-scale enterprises.",
-      "url": "https://simonives.com",
-      "mainEntityOfPage": "manifesto.md",
+      "jobTitle": "Head of Human Resources Technology Strategy",
+      "description": "Simon Ives, FCPHR, MBA — practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design.",
+      "url": "https://www.simonives.com",
       "sameAs": [
         "https://www.linkedin.com/in/simonives",
-        "https://decodingdisruption.substack.com/"
+        "https://enterprisephronesis.substack.com"
       ],
-      "knowsAbout": ["Workforce AI Strategy", "HR Technology", "Enterprise Transformation", "Winning Productivity"],
+      "knowsAbout": ["Workforce Strategy", "AI Governance", "HR Technology", "Enterprise Transformation", "Organisational Design"],
       "worksFor": {
         "@type": "Organization",
         "name": "BHP"
@@ -38,7 +37,7 @@
     <header class="site-header">
         <nav class="container">
             <a href="index.html" class="logo">Simon Ives <span class="phi-mark">Φ</span></a>
-            
+
             <button class="menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="6" x2="20" y2="6"></line>
@@ -50,17 +49,17 @@
             <div class="nav-container">
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="doctrine.html">Doctrine</a></li>
-                    <li><a href="portfolio.html">Portfolio</a></li>
-                    <li><a href="insights.html">Insights</a></li>
+                    <li><a href="doctrine.html">Approach</a></li>
+                    <li><a href="portfolio.html">Track Record</a></li>
                     <li><a href="briefing.html" class="cta-small">Submit a Briefing</a></li>
+                    <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" class="phronesis-link">Phronesis ↗</a></li>
                 </ul>
                 <button id="theme-toggle" aria-label="Toggle colour theme">◐</button>
                 <div class="header-social">
                     <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener" aria-label="LinkedIn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </a>
-                    <a href="https://decodingdisruption.substack.com/" target="_blank" rel="noopener" aria-label="Substack">
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" aria-label="Substack">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.534 8.285H1.466V0h21.068v8.285zM1.466 10.812V24L12 18.11 22.534 24V10.812H1.466z"/></svg>
                     </a>
                 </div>
@@ -70,7 +69,7 @@
             document.addEventListener('DOMContentLoaded', () => {
                 const menuToggle = document.querySelector('.menu-toggle');
                 const navContainer = document.querySelector('.nav-container');
-                
+
                 menuToggle.addEventListener('click', () => {
                     const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
                     menuToggle.setAttribute('aria-expanded', !expanded);
@@ -82,21 +81,21 @@
     </header>
 
     <main>
-        <!-- 1. Hero Section -->
+        <!-- Hero -->
         <section class="hero section-padding">
             <div class="phi-watermark" aria-hidden="true">Φ</div>
             <div class="container hero-content">
                 <div class="phi-accent-bar"></div>
-                <span class="eyebrow">Workforce Architecture</span>
-                <h1 class="hero-headline">Tech-driven workforce transformation delivers Winning Productivity.</h1>
+                <span class="eyebrow">Workforce Strategy · AI Governance · Organisational Design</span>
+                <h1 class="hero-headline">Most analysis of enterprise AI comes from people who have never had to implement it.</h1>
                 <p class="hero-subheadline lead">
-                    Most large-scale enterprises treat workforce transformation as a tactical commodity.
-                    This strategic error costs global organizations significant market power. I architect
-                    the talent systems that drive massive productivity uplifts and enterprise dominance.
+                    Most writing about AI and the future of work is produced by people watching from the outside.
+                    Consultants who advise on transformations they will never execute. Vendors whose research
+                    flatters their product. This is written from inside the problem.
                 </p>
                 <div class="hero-actions">
-                    <a href="briefing.html" class="cta-button">Submit a Strategic Briefing</a>
-                    <a href="https://decodingdisruption.substack.com/" target="_blank" rel="noopener" class="cta-link">Read Phronesis ↗</a>
+                    <a href="briefing.html" class="cta-button">Submit a Briefing</a>
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" class="cta-link">Read Phronesis ↗</a>
                 </div>
             </div>
         </section>
@@ -109,69 +108,86 @@
                 <div class="engage-block">
                     <span class="engage-tag">READ</span>
                     <div class="engage-title">Phronesis</div>
-                    <p>Weekly intelligence on tech-driven workforce transformation and enterprise architecture.</p>
-                    <a href="https://decodingdisruption.substack.com/" target="_blank" rel="noopener" class="engage-link">Read on Substack ↗</a>
+                    <p>Practical wisdom for enterprise transformation. Fortnightly analysis and philosophical essays on AI governance, workforce strategy, and organisational design.</p>
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" class="engage-link">Read on Substack ↗</a>
                 </div>
                 <div class="engage-block">
                     <span class="engage-tag">ENGAGE</span>
                     <div class="engage-title">Submit a Briefing</div>
-                    <p>Delivering winning productivity requires extreme focus. Submit the parameters of your organizational challenge.</p>
-                    <a href="briefing.html" class="engage-link">Submit a Strategic Briefing →</a>
+                    <p>Bring a real problem. Not a request for proposals. Submit the parameters of your organisational challenge.</p>
+                    <a href="briefing.html" class="engage-link">Submit a Briefing →</a>
                 </div>
             </div>
         </section>
 
-        <!-- 2. The Strategic Pivot -->
-        <section id="pivot" class="pivot section-padding alternate-bg">
+        <!-- Written from inside the problem -->
+        <section class="pivot section-padding alternate-bg">
             <div class="container grid">
                 <div class="content">
-                    <h2>Architectural Dominance</h2>
+                    <h2>Written from inside the problem</h2>
                     <p>
-                        Strategic superiority requires more than 'human-centric' design. It requires 
-                        architectural dominance. I engineer the talent systems that allow large-scale 
-                        enterprises to out-calculate and out-maneuver the global market 
-                        through superior organizational design and technological integration.
+                        Most analysis of enterprise AI and workforce transformation is produced by people who
+                        have never had to govern it at scale. Consultants advise on transformations they will
+                        never execute. Vendors publish research that flatters their products.
+                    </p>
+                    <p>
+                        Simon Ives works from inside BHP — one of the world's most complex organisations —
+                        directing a nine-figure technology portfolio and governing AI strategy across a global
+                        workforce. That practitioner perspective is the core differentiator. It is not
+                        performed; it is the work.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- 3. The 'Secret' Revealed -->
-        <section id="secret" class="secret section-padding">
+        <!-- Practical wisdom -->
+        <section class="secret section-padding">
             <div class="container">
                 <div class="max-width-text">
-                    <h2>Winning Productivity Through Precision Engineering.</h2>
+                    <h2>Practical wisdom for enterprise transformation</h2>
                     <p>
-                        Workforce transformation is the core engine of organizational 
-                        power. In large-scale enterprises, your talent architecture determines your 
-                        speed of execution and your depth of intelligence. I transform human capital 
-                        from a cost center into a deliverer of massive productivity uplifts.
+                        Phronesis (φρόνησις) is Aristotle's concept of practical wisdom — the capacity to
+                        reason well about complex situations and act on that reasoning. It is the intellectual
+                        framework behind this work: philosophy applied to enterprise-scale problems, not as
+                        theory, but as a practitioner's tool.
                     </p>
+                    <p>
+                        The Phronesis publication on Substack brings this lens to workforce strategy, AI
+                        governance, and organisational design. The approach page sets out the three foundational
+                        practices that govern the work.
+                    </p>
+                    <a href="doctrine.html" class="cta-link">Read the approach →</a>
                 </div>
             </div>
         </section>
 
-        <!-- 4. The Technical Moat -->
-        <section id="moat" class="moat section-padding alternate-bg">
+        <!-- Advisory and speaking -->
+        <section class="moat section-padding alternate-bg">
             <div class="container grid">
                 <div class="content">
-                    <h2>Zero-to-One: Winning Productivity as Strategy.</h2>
+                    <h2>Advisory and speaking</h2>
                     <p>
-                        I reject the bloat of commodity-grade frameworks. My approach is '0-to-1'—building 
-                        high-performance, frictionless platforms that signal precision and technical 
-                        integrity. Speed is not a feature; it is a psychological moonshot that 
-                        delivers the winning productivity required for enterprise dominance.
+                        Simon serves on executive advisory boards for SAP and ServiceNow, on the HR Advisory
+                        Committee for the Australian Institute of Business, and speaks internationally on
+                        workforce transformation and AI strategy.
                     </p>
+                    <p>
+                        He holds the FCPHR designation — the peak professional credential in the HR field,
+                        awarded to senior leaders with a sustained, high-level contribution to the profession
+                        — and an MBA.
+                    </p>
+                    <a href="portfolio.html" class="cta-link">View the track record →</a>
                 </div>
             </div>
         </section>
 
-        <!-- 5. Contact / Closure -->
-        <section id="contact" class="contact section-padding">
+        <!-- Closing CTA -->
+        <section class="contact section-padding">
             <div class="container text-center">
-                <h2>Architect Your Competitive Advantage.</h2>
+                <h2>Bring a real problem.</h2>
+                <p>Advisory availability is limited to complex, large-scale enterprise transformations. Submit the parameters of your organisational challenge to initiate a strategic review.</p>
                 <div class="contact-actions">
-                    <a href="briefing.html" class="cta-button">Submit a Strategic Briefing</a>
+                    <a href="briefing.html" class="cta-button">Submit a Briefing</a>
                 </div>
             </div>
         </section>
@@ -181,14 +197,14 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-copy">
-                    <p>&copy; 2026 Simon Ives. All rights reserved. I build for winning productivity.</p>
+                    <p>&copy; 2026 Simon Ives. All rights reserved.</p>
                     <p><a href="governance.html">Information Governance</a></p>
                 </div>
                 <div class="social-links">
                     <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener" aria-label="LinkedIn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </a>
-                    <a href="https://decodingdisruption.substack.com/" target="_blank" rel="noopener" aria-label="Substack">
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" aria-label="Substack">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.534 8.285H1.466V0h21.068v8.285zM1.466 10.812V24L12 18.11 22.534 24V10.812H1.466z"/></svg>
                     </a>
                 </div>
@@ -198,7 +214,6 @@
 
     <script>
     (function () {
-        /* Nav scroll border */
         var header = document.querySelector('.site-header');
         if (header) {
             function updateScrolled() {
@@ -208,7 +223,6 @@
             updateScrolled();
         }
 
-        /* Dark mode toggle with localStorage persistence */
         var toggle = document.getElementById('theme-toggle');
         var html = document.documentElement;
         var saved = localStorage.getItem('theme');
