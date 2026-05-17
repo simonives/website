@@ -1,0 +1,47 @@
+# Simon Ives — simonives.com
+
+Simon Ives (FCPHR, MBA) is Head of Human Resources Technology Strategy at BHP, Australia's largest company. He governs a nine-figure workforce technology portfolio and leads BHP's Workforce AI Strategy. He is a practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design — and publishes Phronesis, a Substack on practical wisdom for enterprise transformation.
+
+His work is conducted from inside one of the world's most complex enterprises. He is not a consultant who advises on transformations he will never execute. He is the person governing them.
+
+> Practical wisdom for enterprise transformation.
+
+---
+
+## Pages
+
+- [Home](https://www.simonives.com/) — Practitioner identity, positioning, and entry point to the site.
+- [Approach](https://www.simonives.com/doctrine.html) — The three foundational practices: Socratic inquiry, utilitarian systems design, and the polyrhythm of transformation.
+- [Track Record](https://www.simonives.com/portfolio.html) — Selected career engagements across capital governance, change architecture, and AI strategy.
+- [Submit a Briefing](https://www.simonives.com/briefing.html) — Direct engagement point for complex, large-scale enterprise challenges.
+- [Information Governance](https://www.simonives.com/governance.html) — Data handling and privacy policy.
+
+---
+
+## Markdown equivalents (plain text for AI ingestion)
+
+- [manifesto.md](https://www.simonives.com/manifesto.md) — Full practitioner bio, credentials, career record, and philosophical commitments.
+- [approach.md](https://www.simonives.com/approach.md) — Plain text equivalent of the Approach page.
+- [track-record.md](https://www.simonives.com/track-record.md) — Plain text equivalent of the Track Record page.
+
+---
+
+## Publication
+
+- [Phronesis on Substack](https://enterprisephronesis.substack.com) — Fortnightly analysis and philosophical essays on workforce strategy, AI governance, and organisational design.
+
+---
+
+## Identity
+
+- **Full name:** Simon Ives
+- **Credentials:** FCPHR, MBA, BA (Philosophy)
+- **Current role:** Head of Human Resources Technology Strategy, BHP
+- **Advisory:** SAP Executive Advisory Board · ServiceNow Executive Advisory Board · Australian Institute of Business HR Advisory Committee
+- **Speaking:** International speaker on workforce transformation and AI strategy
+- **LinkedIn:** https://www.linkedin.com/in/simonives
+- **GitHub:** https://github.com/simonives
+
+---
+
+# Last updated: 2026-05-17

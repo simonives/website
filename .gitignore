@@ -51,6 +51,10 @@ yarn-error.log*
 # These files are local only and must never be published.
 PROJECT_PLAN.md
 
+# --- AI collaboration files ---
+# Working documents for AI-assisted development. Not needed in the public repo view.
+CLAUDE.md
+
 # --- Development & testing artifacts ---
 # These files are local development artefacts and should not
 # be committed to the repository.
