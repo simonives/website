@@ -88,9 +88,15 @@
                 <h1>Strategic Briefing</h1>
                 <p class="lead">Delivering winning productivity requires extreme focus. Submit the parameters of your organizational challenge to initiate a strategic review.</p>
 
-            <div id="status-container"></div>
+            <form action="https://api.web3forms.com/submit" method="POST" class="briefing-form">
+                <!-- Configuration for Web3Forms -->
+                <input type="hidden" name="access_key" value="daf80bfc-9041-4953-91da-7bf7347d13b1">
+                <input type="hidden" name="subject" value="ACTION: Strategic Briefing Submited">
+                <input type="hidden" name="from_name" value="The Monopoly Engine">
+                
+                <!-- Optional: Honeypot for spam protection -->
+                <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
-            <form id="briefing-form" class="briefing-form">
                 <div class="form-group">
                     <label for="name">Executive Sponsor</label>
                     <input type="text" id="name" name="name" required placeholder="Full Name and Title">
@@ -128,67 +134,11 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" id="submit-btn" class="cta-button">Submit Strategic Briefing</button>
+                    <button type="submit" class="cta-button">Submit Strategic Briefing</button>
                 </div>
             </form>
-
-            <div id="success-container" style="display: none;">
-                <div class="status-box success">
-                    I have received your strategic parameters and initiated the evaluation. You may now access the <a href="governance.html">Information Governance Policy</a> for your records.
-                </div>
-                <div class="success-actions" style="margin-top: 30px;">
-                    <a href="index.html" class="cta-button">Return to Overview</a>
-                </div>
-            </div>
         </div>
     </section>
-
-    <script>
-        document.getElementById('briefing-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const form = e.target;
-            const btn = document.getElementById('submit-btn');
-            const statusContainer = document.getElementById('status-container');
-            const successContainer = document.getElementById('success-container');
-            
-            // Strategic UI Feedback
-            btn.disabled = true;
-            btn.innerText = 'Transmitting...';
-            statusContainer.innerHTML = '';
-
-            const formData = new URLSearchParams();
-            formData.append('name', form.name.value);
-            formData.append('email', form.email.value);
-            formData.append('headcount', form.headcount.value);
-            formData.append('technology', form.technology.value);
-            formData.append('request', form.request.value);
-
-            try {
-                // Preserving your deployed URL
-                const SCRIPT_URL = 'https://script.google.com/a/macros/simonives.com/s/AKfycbwQWb8Qg5N-kX2CbOTNU6YM0kpFTk_3eK1Tx2A4v_5eJHxre4OV1FgtAYKV1YNPwLgQIw/exec';
-                
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                });
-
-                // Transition to success state
-                form.style.display = 'none';
-                successContainer.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            } catch (error) {
-                console.error('Error:', error);
-                btn.disabled = false;
-                btn.innerText = 'Submit Strategic Briefing';
-                statusContainer.innerHTML = '<div class="status-box error">I encountered a transmission error. Please attempt to resubmit or contact me directly.</div>';
-            }
-        });
-    </script>
             </div>
         </section>
     </main>
