@@ -157,27 +157,26 @@
             btn.innerText = 'Transmitting...';
             statusContainer.innerHTML = '';
 
-            const formData = {
-                name: form.name.value,
-                email: form.email.value,
-                headcount: form.headcount.value,
-                technology: form.technology.value,
-                request: form.request.value
-            };
+            const formData = new URLSearchParams();
+            formData.append('name', form.name.value);
+            formData.append('email', form.email.value);
+            formData.append('headcount', form.headcount.value);
+            formData.append('technology', form.technology.value);
+            formData.append('request', form.request.value);
 
             try {
-                // Replace this URL with your deployed Google Apps Script Web App URL
+                // Preserving your deployed URL
                 const SCRIPT_URL = 'https://script.google.com/a/macros/simonives.com/s/AKfycbwQWb8Qg5N-kX2CbOTNU6YM0kpFTk_3eK1Tx2A4v_5eJHxre4OV1FgtAYKV1YNPwLgQIw/exec';
                 
-                const response = await fetch(SCRIPT_URL, {
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Required for Google Apps Script redirects
+                    mode: 'no-cors',
                     cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
                 });
 
-                // Since 'no-cors' doesn't return a readable body, we assume success if no error is thrown
+                // Transition to success state
                 form.style.display = 'none';
                 successContainer.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
