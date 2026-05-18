@@ -5,39 +5,39 @@
 
 ---
 
-## The foundational logic of systemic transformation
+## Three practices. One commitment.
 
-Complex large-scale enterprises fail when they treat workforce transformation as a tactical deployment rather than a behavioural architecture. My practice rejects superficial change management. I drive measurable, sustained improvement for large-scale enterprises by adhering to three non-negotiable practices: applying rigorous inquiry to dismantle legacy assumptions, designing systems that reduce workforce friction and improve collective outcomes, and governing change at a pace the organisation can actually absorb.
+These are not a framework applied from the outside. They are the commitments that govern every engagement — how I ask questions at the start, how I design systems in the middle, and how I pace change through organisations that have to keep functioning while they transform.
 
 ---
 
 ## Practice I — The Socratic approach to architecture
 
-Enterprise technology environments often suffer under decades of inherited, unquestioned processes. I do not automate legacy dysfunction. I begin every strategic engagement by stripping away assumptions to locate the fundamental operational truth.
+Enterprise technology environments accumulate decades of inherited, unquestioned assumptions. I do not automate legacy dysfunction. Every engagement starts by stripping away those assumptions to find the actual problem — which is rarely the problem that was originally stated.
 
-- Demand rigorous clarity on the exact business problem before allocating a single dollar of capital.
-- Challenge localised best practices that fracture the global architectural standard.
-- Ensure every technological capability directly answers a fundamental human or operational requirement.
+- The starting point is always the actual problem, not the stated one. They are rarely the same.
+- Local best practices that fracture the global architectural standard get examined — and where necessary, dismantled.
+- No technology investment is made without a clear answer to the question: what human or operational need does this directly address?
 
 ---
 
 ## Practice II — Utilitarian systems design
 
-The measure of a system's success is the aggregate value it delivers to the enterprise and the people within it. A frictionless user experience is not a cultural luxury; it is the primary driver of organisational productivity. I design systems to eradicate administrative drag and free the workforce to do the work that matters.
+The measure of a system is the aggregate value it delivers to the organisation and the people working in it. A poor user experience is not a cosmetic problem — it is a productivity tax levied on every person who uses the system every day. I design for the elimination of that tax.
 
-- Evaluate platform success by the reduction of workforce friction and the reclamation of productive capacity.
-- Design interfaces that respect the cognitive load of the user, requiring zero translation or excessive training.
-- Liberate human capital from administrative burden so the workforce can execute the work that drives organisational outcomes.
+- Platform success is measured by the reduction of workforce friction and the reclamation of productive capacity — not by deployment milestones.
+- Interfaces should require no translation and minimal training. If a system needs a manual, the design has already failed.
+- The goal is to free people from administrative work so they can do the work that actually matters to the organisation.
 
 ---
 
 ## Practice III — The polyrhythm of transformation
 
-Governing change in a multinational enterprise requires synchronising the pace of technology with the speed of behavioural adoption. I ensure that disparate operational units move in concert, and that no capital deployment outpaces the organisation's capacity to absorb it.
+Governing change in a complex enterprise means synchronising rhythms that don't naturally align — technology deployment pace, behavioural adoption pace, capital release pace. They are never the same tempo. Getting this wrong produces either paralysis or chaos. I manage the synchronisation.
 
-- Govern global capital expenditure with discipline while maintaining agility at the local edge.
-- Pace the introduction of new cognitive technologies to match the organisational capacity for behavioural change.
-- Synchronise legacy infrastructure deprecation with new core platform adoption to ensure operational continuity.
+- Global capital governance requires discipline at the centre and genuine flexibility at the edge. These are not in conflict when the architecture is right.
+- New technology is introduced at the pace the organisation can actually absorb — not at the pace the vendor prefers.
+- Legacy infrastructure doesn't get deprecated until the replacement is stable. Operational continuity is not negotiable.
 
 ---
 
