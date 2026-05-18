@@ -41,16 +41,6 @@ The site is intentionally static: no CMS, no server-side processing, no dependen
 
 ---
 
-## Assets
-
-| Path | Purpose |
-|---|---|
-| `assets/favicon.png` | Fallback favicon |
-| `assets/logo.png` | Φ logotype |
-| `assets/ahri-badge.png` | AHRI Fellow Certified Practitioner designation badge |
-
----
-
 ## Stylesheets
 
 The site uses two CSS files loaded in sequence:
