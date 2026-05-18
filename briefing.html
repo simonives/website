@@ -27,13 +27,19 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="style-v2.css">
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4WWTCFJT0Y"></script>
+    <!-- Google Analytics 4 — loads only after cookie consent is given -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-4WWTCFJT0Y');
+    (function () {
+        if (localStorage.getItem('cookie-consent') !== 'accepted') return;
+        var s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-4WWTCFJT0Y';
+        s.async = true;
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', 'G-4WWTCFJT0Y');
+    })();
     </script>
     <script type="application/ld+json">
     {
@@ -207,7 +213,41 @@
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
         }
+
+        // Cookie consent banner
+        if (localStorage.getItem('cookie-consent') === null) {
+            var banner = document.getElementById('cookie-banner');
+            if (banner) {
+                banner.removeAttribute('hidden');
+                document.getElementById('cookie-accept').addEventListener('click', function () {
+                    localStorage.setItem('cookie-consent', 'accepted');
+                    banner.setAttribute('hidden', '');
+                    var s = document.createElement('script');
+                    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-4WWTCFJT0Y';
+                    s.async = true;
+                    document.head.appendChild(s);
+                    window.dataLayer = window.dataLayer || [];
+                    window.gtag = function () { dataLayer.push(arguments); };
+                    gtag('js', new Date());
+                    gtag('config', 'G-4WWTCFJT0Y');
+                });
+                document.getElementById('cookie-decline').addEventListener('click', function () {
+                    localStorage.setItem('cookie-consent', 'declined');
+                    banner.setAttribute('hidden', '');
+                });
+            }
+        }
     })();
     </script>
+
+    <div id="cookie-banner" role="region" aria-label="Cookie consent" hidden>
+        <div class="container cookie-inner">
+            <p class="cookie-text">This site uses Google Analytics to understand how visitors engage with the content. Google Analytics is the only source of cookies set by this site. <a href="governance.html">Information Governance Policy</a>.</p>
+            <div class="cookie-actions">
+                <button type="button" class="cta-button cookie-btn-accept" id="cookie-accept">Accept analytics</button>
+                <button type="button" class="cookie-btn-decline" id="cookie-decline">Decline</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
