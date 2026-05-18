@@ -67,7 +67,3 @@ backend_payload.txt
 *.zip
 *.tar.gz
 *.rar
-
-# --- Security & compliance assessments ---
-# Internal audit outputs. Must never be published to the public repository.
-security_outputs/
