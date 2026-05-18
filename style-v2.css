@@ -13,16 +13,16 @@
   --color-bg-surface: #FFFFFF;
   --color-text-primary: #111111;
   --color-text-secondary: #555550;
-  --color-text-tertiary: #999990;
+  --color-text-tertiary: #6B6B64;   /* was #999990 — darkened for WCAG AA (4.97:1 on bg) */
   --color-border: rgba(0, 0, 0, 0.10);
-  --color-accent: #8B7355;
+  --color-accent: #6B5640;           /* was #8B7355 — darkened for WCAG AA (6.42:1 on bg) */
 
   /* Remap legacy tokens from style.css so its var() refs pick up new palette */
   --color-obsidian: var(--color-bg-primary);
   --color-slate: var(--color-bg-surface);
   --color-slate-light: var(--color-bg-surface);
   --color-gold: var(--color-accent);
-  --color-gold-muted: rgba(139, 115, 85, 0.6);
+  --color-gold-muted: rgba(107, 86, 64, 0.6);  /* updated to match new --color-accent */
   --color-error: #CC3333;
   --color-success: #2D7A3A;
   --transition-premium: all 0.3s ease;
@@ -38,7 +38,7 @@ html.dark {
   --color-bg-surface: #1A1A1A;
   --color-text-primary: #F0EDE8;
   --color-text-secondary: #A8A49E;
-  --color-text-tertiary: #666660;
+  --color-text-tertiary: #888882;   /* was #666660 — lightened for WCAG AA (5.30:1 on bg) */
   --color-border: rgba(255, 255, 255, 0.10);
   --color-accent: #C4A882;
   --color-gold: var(--color-accent);
@@ -582,7 +582,14 @@ a:hover {
 .form-group textarea:focus {
   border-color: var(--color-accent);
   background-color: var(--color-bg-surface);
-  outline: none;
+  outline: none; /* suppressed for mouse users; restored via :focus-visible below */
+}
+
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .status-box {
@@ -758,6 +765,24 @@ section {
 
 .cookie-btn-decline:hover {
   color: var(--color-text-primary);
+}
+
+/* ===== WCAG 2.2 AA — GLOBAL FOCUS INDICATORS =====
+   :focus-visible ensures outlines appear for keyboard navigation only,
+   not on mouse click. All interactive elements must be keyboard operable
+   and have a visible focus state. */
+a:focus-visible,
+button:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Checkbox (briefing form consent) */
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .cookie-btn-decline:focus-visible {
