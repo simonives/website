@@ -1,6 +1,6 @@
 # Simon Ives — simonives.com
 
-Simon Ives (FCPHR, MBA) is Head of Human Resources Technology Strategy at BHP, Australia's largest company. He governs a nine-figure workforce technology portfolio and leads BHP's Workforce AI Strategy. He is a practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design — and publishes Phronesis, a Substack on practical wisdom for enterprise transformation.
+Simon Ives (FCPHR, MBA) leads HR Technology Strategy and Transformation at BHP, Australia's largest company. He governs a high-value workforce technology portfolio and leads BHP's Workforce AI Strategy. He is a practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design — and publishes Phronesis, a Substack on practical wisdom for enterprise transformation.
 
 His work is conducted from inside one of the world's most complex enterprises. He is not a consultant who advises on transformations he will never execute. He is the person governing them.
 
@@ -35,8 +35,8 @@ His work is conducted from inside one of the world's most complex enterprises. H
 ## Identity
 
 - **Full name:** Simon Ives
-- **Credentials:** FCPHR, MBA, BA (Philosophy)
-- **Current role:** Head of Human Resources Technology Strategy, BHP
+- **Credentials:** FCPHR, MBA
+- **Current role:** HR Technology Strategy & Transformation, BHP
 - **Advisory:** SAP Executive Advisory Board · ServiceNow Executive Advisory Board · Australian Institute of Business HR Advisory Committee
 - **Speaking:** International speaker on workforce transformation and AI strategy
 - **LinkedIn:** https://www.linkedin.com/in/simonives
@@ -44,4 +44,4 @@ His work is conducted from inside one of the world's most complex enterprises. H
 
 ---
 
-# Last updated: 2026-05-17
+# Last updated: 2026-05-18

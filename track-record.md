@@ -17,9 +17,9 @@ I have spent my career inside global enterprises — governing technology portfo
 **Scale:** Nine-figure USD portfolio  
 **Core platforms:** SAP SuccessFactors, ServiceNow, SAP S/4HANA, UKG, Mulesoft, Snowflake, Signavio, Paradox.ai
 
-Governing the global technology infrastructure of a large, complex enterprise requires more than implementation competence. It requires establishing a unified architectural standard across disparate regions and ensuring that nine-figure capital investments translate into measurable operational outcomes rather than accumulated technical debt.
+At BHP, I govern the global HR and workforce technology estate — a portfolio spanning SAP SuccessFactors, ServiceNow, and a constellation of integrated systems across every region the company operates in. The work is not implementation. It is architectural governance: establishing and maintaining a unified standard across a genuinely complex organisation, and ensuring that capital invested in that estate produces measurable outcomes rather than accumulating as technical debt.
 
-My practice focuses on the strategic synchronisation of core platforms: driving consistent organisational standards, enabling rapid response to global regulatory shifts, and creating a single source of truth for executive decision-making. I do not merely implement systems — I govern the technology estate as a whole.
+The challenge at this scale is not selecting the right platforms — it is governing the relationships between them, the pace at which they evolve, and the standards that hold everything together when individual regions want to diverge.
 
 ---
 
@@ -31,7 +31,7 @@ My practice focuses on the strategic synchronisation of core platforms: driving 
 
 Standard change management treats user resistance as a communication failure. I treat it as an architectural flaw. When leading complex platform implementations, I engineer systems that drive their own adoption by reducing the cognitive load on the workforce.
 
-My methodology focuses on value realisation and sustained productivity improvement. By aligning technological capability directly with human need, I eradicate administrative friction. I ensure that every capital deployment yields immediate, measurable returns to the organisation — and that adoption is not an afterthought, but a design principle.
+When a system is designed around how people actually work — not how the vendor assumes they work — adoption stops being a problem to be managed and becomes an outcome that happens naturally. Every capital deployment should produce measurable value from the start, not after a twelve-month change programme.
 
 ---
 
@@ -43,7 +43,7 @@ My methodology focuses on value realisation and sustained productivity improveme
 
 Inherited, unquestioned processes routinely destroy organisational productivity. Applying rigorous lean principles and a Socratic approach to business design, I systematically locate the fundamental truth of an operational requirement and dismantle inefficient workflows before any technology investment is made.
 
-I do not automate legacy dysfunction. I design operational frameworks that embed and empower artificial intelligence with purpose. Architecting processes specifically for cognitive augmentation is a distinct, high-value capability — it moves AI from a tactical novelty to a driver of genuine enterprise value.
+The question I start with is never "how do we use AI here?" It is "what is the actual process, and does it make sense?" AI embedded in a broken process produces faster broken outcomes. The redesign comes first. Then the technology.
 
 ---
 
@@ -65,7 +65,6 @@ International speaker on workforce transformation and AI strategy.
 
 - **FCPHR** — Fellow Certified Practitioner Human Resources (Australian HR Institute)
 - **MBA** — Master of Business Administration
-- **BA (Philosophy)**
 - **Graduate Diploma of Management (Learning)**
 - **MIT Sloan** — Business Process Design for Strategic Management
 - **Wharton School (UPenn)** — Gamification and Behavioural Design

@@ -50,6 +50,7 @@ yarn-error.log*
 # --- Private planning documents ---
 # These files are local only and must never be published.
 PROJECT_PLAN.md
+STYLE_GUIDE.md
 
 # --- AI collaboration files ---
 # Working documents for AI-assisted development. Not needed in the public repo view.
