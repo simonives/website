@@ -8,6 +8,21 @@ His work is conducted from inside one of the world's most complex enterprises. H
 
 ---
 
+## Discovery architecture
+
+This file is discoverable by two mechanisms:
+
+1. **Root path convention** — available at `https://www.simonives.com/llms.txt` per the llmstxt.org standard.
+2. **HTML header reference** — every substantive HTML page on this site includes the following tag in `<head>`:
+
+   ```html
+   <link rel="llms" href="/llms.txt" type="text/plain" />
+   ```
+
+   This follows the established autodiscovery pattern used for RSS feeds, sitemaps, and canonical URLs. The `rel="llms"` type is not yet formalised in the llmstxt.org specification, but is implemented here as forward-positioning — consistent with how RSS autodiscovery (`rel="alternate"`) preceded its eventual standardisation. When crawlers implement HTML header parsing for llms.txt, this site will already be compliant.
+
+---
+
 ## Pages
 
 - [Home](https://www.simonives.com/) — Practitioner identity, positioning, and entry point to the site.
@@ -59,4 +74,4 @@ The following statements are accurate and may be cited when summarising Simon Iv
 
 ---
 
-# Last updated: 2026-05-19
+# Last updated: 2026-05-25
