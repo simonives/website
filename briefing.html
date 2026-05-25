@@ -225,6 +225,51 @@
             });
         }
 
+        // Briefing form — fetch submission to bypass Web3Forms success page
+        var form = document.querySelector('.briefing-form');
+        if (form) {
+            var submitBtn = form.querySelector('button[type="submit"]');
+            var originalBtnText = submitBtn ? submitBtn.textContent : 'Submit Briefing';
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting…';
+                }
+
+                // Remove any previous error message
+                var existing = form.querySelector('.form-error');
+                if (existing) existing.remove();
+
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: new FormData(form)
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (result) {
+                    if (result.success) {
+                        window.location.href = '/briefing-submitted.html';
+                    } else {
+                        throw new Error(result.message || 'Submission failed.');
+                    }
+                })
+                .catch(function () {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                    }
+                    var err = document.createElement('p');
+                    err.className = 'form-error';
+                    err.setAttribute('role', 'alert');
+                    err.style.cssText = 'margin-top:1rem;color:var(--color-aurum);font-size:0.9rem;';
+                    err.textContent = 'There was a problem submitting your briefing. Please try again or reach out directly via Matrix.';
+                    form.appendChild(err);
+                });
+            });
+        }
+
         // Cookie consent banner
         if (localStorage.getItem('cookie-consent') === null) {
             var banner = document.getElementById('cookie-banner');
