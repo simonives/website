@@ -11,16 +11,10 @@
         }
     })();
     </script>
-    <meta name="description" content="Submit your strategic parameters for an engagement with Simon Ives. Advisory availability is limited to complex, large-scale enterprise transformations.">
-    <meta property="og:title" content="Submit a Briefing — Simon Ives">
-    <meta property="og:description" content="Bring a real problem. Submit the parameters of your organisational challenge for a strategic review. Advisory availability is limited to complex, large-scale enterprise transformations.">
-    <meta property="og:url" content="https://www.simonives.com/briefing.html">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://www.simonives.com/og-image.png">
-    <meta property="og:site_name" content="Simon Ives">
-    <link rel="canonical" href="https://www.simonives.com/briefing.html">
-    <link rel="llms" href="/llms.txt" type="text/plain" />
-    <title>Submit a Briefing — Simon Ives</title>
+    <meta name="description" content="Your strategic briefing has been received and is under review.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="https://www.simonives.com/briefing-submitted.html">
+    <title>Briefing received — Simon Ives</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Φ</text></svg>">
     <link rel="author" type="text/markdown" href="manifesto.md">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,6 +34,7 @@
         window.gtag = function () { dataLayer.push(arguments); };
         gtag('js', new Date());
         gtag('config', 'G-4WWTCFJT0Y');
+        gtag('event', 'briefing_submitted');
     })();
     </script>
     <script type="application/ld+json">
@@ -81,15 +76,15 @@
                     <li><a href="index.html">Home</a></li>
                     <li><a href="doctrine.html">Approach</a></li>
                     <li><a href="portfolio.html">Track Record</a></li>
-                    <li><a href="briefing.html" class="cta-small active">Submit a Briefing</a></li>
-                    <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="phronesis-link">Phronesis ↗</a></li>
+                    <li><a href="briefing.html" class="cta-small">Submit a Briefing</a></li>
+                    <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" class="phronesis-link">Phronesis ↗</a></li>
                 </ul>
                 <button id="theme-toggle" aria-label="Toggle colour theme">◐</button>
                 <div class="header-social">
-                    <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                    <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener" aria-label="LinkedIn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </a>
-                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" aria-label="Substack">
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" aria-label="Substack">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.534 8.285H1.466V0h21.068v8.285zM1.466 10.812V24L12 18.11 22.534 24V10.812H1.466z"/></svg>
                     </a>
                 </div>
@@ -99,7 +94,6 @@
             document.addEventListener('DOMContentLoaded', () => {
                 const menuToggle = document.querySelector('.menu-toggle');
                 const navContainer = document.querySelector('.nav-container');
-
                 menuToggle.addEventListener('click', () => {
                     const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
                     menuToggle.setAttribute('aria-expanded', !expanded);
@@ -114,61 +108,13 @@
         <section class="section-padding">
             <div class="container">
                 <div class="briefing-container">
-                    <span class="eyebrow">SUBMIT A BRIEFING</span>
-                    <h1>Bring a real problem. Not a request for proposals.</h1>
-                    <p class="lead">Submit the parameters of your organisational challenge to initiate a strategic review. Advisory availability is limited to complex, large-scale enterprise transformations.</p>
-
-                    <form action="https://api.web3forms.com/submit" method="POST" class="briefing-form">
-                        <!-- Web3Forms configuration -->
-                        <input type="hidden" name="access_key" value="daf80bfc-9041-4953-91da-7bf7347d13b1">
-                        <input type="hidden" name="subject" value="ACTION: Strategic Briefing Submitted">
-                        <input type="hidden" name="from_name" value="simonives.com">
-                        <input type="hidden" name="redirect" value="https://www.simonives.com/briefing-submitted.html">
-
-                        <!-- Honeypot spam protection -->
-                        <input type="checkbox" name="botcheck" style="display: none;">
-
-                        <div class="form-group">
-                            <label for="name">Executive sponsor</label>
-                            <input type="text" id="name" name="name" required placeholder="Full name and title">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Corporate email</label>
-                            <input type="email" id="email" name="email" required placeholder="corporate.email@enterprise.com">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="headcount">Enterprise headcount</label>
-                            <select id="headcount" name="headcount" required>
-                                <option value="" disabled selected>Select enterprise scale</option>
-                                <option value="100,000+ (Multinational)">100,000+ (Multinational)</option>
-                                <option value="50,000 – 100,000 (Global enterprise)">50,000 – 100,000 (Global enterprise)</option>
-                                <option value="10,000 – 50,000 (Enterprise)">10,000 – 50,000 (Enterprise)</option>
-                                <option value="Under 10,000 (Mid-market)">Under 10,000 (Mid-market)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="technology">Core technology ecosystem</label>
-                            <input type="text" id="technology" name="technology" required placeholder="e.g. SAP SuccessFactors, Workday, ServiceNow">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="request">The challenge</label>
-                            <textarea id="request" name="request" rows="6" required placeholder="Define the problem you are trying to solve…"></textarea>
-                        </div>
-
-                        <div class="form-group checkbox-group">
-                            <input type="checkbox" id="consent" name="consent" required>
-                            <label for="consent">I acknowledge the <a href="governance.html" target="_blank">Information Governance Policy</a>.</label>
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="cta-button">Submit Briefing</button>
-                        </div>
-                    </form>
-                    <p style="margin-top: 2rem; font-size: 0.875rem; color: var(--color-slate);">Prefer a direct conversation? Reach out via Matrix: <a href="https://matrix.to/#/@serendipities:matrix.org" target="_blank" rel="noopener noreferrer">@serendipities:matrix.org</a></p>
+                    <span class="eyebrow">BRIEFING RECEIVED</span>
+                    <h1>Your briefing is under review.</h1>
+                    <p class="lead">The parameters of your challenge have been received. If the scope and complexity align with current advisory availability, you will hear directly — no automated response, no sales process.</p>
+                    <p>In the meantime, the <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener">Phronesis publication</a> covers the territory your challenge likely sits inside: workforce strategy, AI governance, and the architecture of large-scale enterprise transformation.</p>
+                    <div class="form-actions" style="margin-top: 2.5rem;">
+                        <a href="index.html" class="cta-button">Return to site</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -182,14 +128,11 @@
                     <p><a href="governance.html">Information Governance</a></p>
                 </div>
                 <div class="social-links">
-                    <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                    <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener" aria-label="LinkedIn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </a>
-                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" aria-label="Substack">
+                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener" aria-label="Substack">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M22.534 8.285H1.466V0h21.068v8.285zM1.466 10.812V24L12 18.11 22.534 24V10.812H1.466z"/></svg>
-                    </a>
-                    <a href="https://github.com/simonives" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
                     </a>
                 </div>
             </div>
@@ -241,6 +184,7 @@
                     window.gtag = function () { dataLayer.push(arguments); };
                     gtag('js', new Date());
                     gtag('config', 'G-4WWTCFJT0Y');
+                    gtag('event', 'briefing_submitted');
                 });
                 document.getElementById('cookie-decline').addEventListener('click', function () {
                     localStorage.setItem('cookie-consent', 'declined');
