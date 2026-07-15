@@ -56,6 +56,11 @@ STYLE_GUIDE.md
 # Working documents for AI-assisted development. Not needed in the public repo view.
 CLAUDE.md
 
+# --- Superpowers working directory ---
+# Brainstorming specs and implementation plans (superpowers methodology).
+# Local planning artefacts — never published to the public repo.
+docs/superpowers/
+
 # --- Development & testing artifacts ---
 # These files are local development artefacts and should not
 # be committed to the repository.

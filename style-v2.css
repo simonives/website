@@ -27,6 +27,11 @@
   --color-success: #2D7A3A;
   --transition-premium: all 0.3s ease;
   --container-max: 1200px;
+
+  /* Hybrid palette — statement-block tokens (Aurum text only on Midnight) */
+  --color-aurum: #C4962A;
+  --color-midnight: #1D1832;
+  --color-parchment: #F7F4EE;
 }
 
 /* 41. Dark mode — controlled exclusively via JS class toggle.
@@ -140,7 +145,7 @@ p {
   line-height: 1.75;
   font-weight: 400;
   max-width: none;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.6em;
 }
 
 .lead {
@@ -379,6 +384,9 @@ a:hover {
 .hero-headline {
   max-width: none;
   margin-bottom: 1.25rem;  /* 27 */
+  font-size: clamp(44px, 7vw, 88px);
+  letter-spacing: -0.02em;
+  line-height: 1.08;
 }
 
 /* Hero CTA row */
@@ -806,4 +814,127 @@ input[type="checkbox"]:focus-visible {
   .cookie-actions {
     width: 100%;
   }
+}
+
+/* ==========================================================
+   Hybrid visual system — H2 FY27 uplift
+   ========================================================== */
+
+/* Statement block: Midnight brand surface with Aurum hairlines.
+   In dark mode the page body is near-black (#111111); override to match
+   so the hero and footer don't read as lighter purple islands. */
+.on-midnight {
+  background-color: var(--color-midnight);
+  color: var(--color-parchment);
+  border-top: 1px solid var(--color-aurum);
+  border-bottom: 1px solid var(--color-aurum);
+}
+html.dark .on-midnight {
+  background-color: var(--color-bg-primary);
+}
+.on-midnight h1,
+.on-midnight h2,
+.on-midnight .footer-tagline,
+.on-midnight .phi-display {
+  color: var(--color-aurum);
+}
+.on-midnight p,
+.on-midnight li { color: var(--color-parchment); }
+.on-midnight a { color: var(--color-aurum); }
+.on-midnight a:hover { opacity: 0.8; }
+.on-midnight::before { content: none; }
+
+/* Constrained reading column (~68 characters) */
+.prose { max-width: 680px; }
+
+/* Hero Φ as a DOM display element (not a background image) */
+.phi-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(72px, 12vw, 140px);
+  line-height: 1;
+  color: var(--color-aurum);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* Pull quote — one per page maximum */
+.pullquote {
+  font-family: var(--font-display);
+  font-size: 1.4em;
+  line-height: 1.4;
+  border-left: 3px solid var(--color-accent);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  margin: 2rem 0;
+  color: var(--color-text-primary);
+}
+.on-midnight .pullquote {
+  border-left-color: var(--color-aurum);
+  color: var(--color-parchment);
+}
+
+/* Section marker — only before genuinely pivotal H2s */
+.section-marker {
+  border: none;
+  border-top: 1px solid var(--color-accent);
+  width: 48px;
+  margin: 0 0 1.25rem 0;
+}
+.on-midnight .section-marker { border-top-color: var(--color-aurum); }
+
+/* Reveal motion primitive — content visible by default; JS opts into the pre-animation state */
+.reveal { transition: opacity 350ms ease-out, transform 350ms ease-out; }
+.js-motion .reveal.is-hidden { opacity: 0; transform: translateY(12px); }
+.reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .js-motion .reveal.is-hidden { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* Footer band */
+.footer-band { padding: 3.5rem 2rem; text-align: center; }
+.footer-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3vw, 28px);
+  margin-bottom: 0.75rem;
+}
+.footer-orient { font-size: 14px; margin-bottom: 1.5rem; }
+.footer-rule {
+  border: none;
+  border-top: 1px solid var(--color-aurum);
+  max-width: 320px;
+  margin: 0 auto 1.5rem auto;
+  opacity: 0.6;
+}
+.site-footer.on-midnight .footer-content { border: none; padding: 0; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+.site-footer.on-midnight .footer-copy p { color: var(--color-parchment); opacity: 0.85; }
+.site-footer.on-midnight .social-links a { color: var(--color-aurum); }
+
+/* Now page — intimate dispatch treatment */
+.now-page .prose { max-width: 550px; }
+.now-updated {
+  font-family: var(--font-body);
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 2rem;
+}
+.now-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-text-primary);
+  margin: 2rem 0 0.5rem 0;
+}
+
+/* Approach — sticky rail + long-form column */
+.approach-layout { display: grid; grid-template-columns: 220px 1fr; gap: 3rem; align-items: start; }
+.approach-rail { position: sticky; top: 6rem; }
+.approach-rail ol { list-style: none; padding: 0; margin: 0; }
+.approach-rail li { font-family: var(--font-body); font-size: 13px; letter-spacing: 0.04em; color: var(--color-text-tertiary); padding: 0.4rem 0; }
+.approach-rail li.current { color: var(--color-accent); font-weight: 500; }
+@media (max-width: 768px) {
+  .approach-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .approach-rail { position: static; }
+  .approach-rail ol { display: flex; gap: 1rem; }
 }
