@@ -820,13 +820,17 @@ input[type="checkbox"]:focus-visible {
    Hybrid visual system — H2 FY27 uplift
    ========================================================== */
 
-/* Statement block: fixed brand surface, identical in both themes.
-   Aurum hairline separates it from the near-black dark-mode base. */
+/* Statement block: Midnight brand surface with Aurum hairlines.
+   In dark mode the page body is near-black (#111111); override to match
+   so the hero and footer don't read as lighter purple islands. */
 .on-midnight {
   background-color: var(--color-midnight);
   color: var(--color-parchment);
   border-top: 1px solid var(--color-aurum);
   border-bottom: 1px solid var(--color-aurum);
+}
+html.dark .on-midnight {
+  background-color: var(--color-bg-primary);
 }
 .on-midnight h1,
 .on-midnight h2,
