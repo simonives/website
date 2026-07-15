@@ -709,72 +709,6 @@ section {
   margin-bottom: 0;
 }
 
-/* ==========================================
-   Cookie consent banner
-   ========================================== */
-#cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 90;
-  background: var(--color-bg-surface);
-  border-top: 0.5px solid var(--color-border);
-  padding: 1rem 0;
-}
-
-.cookie-inner {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.cookie-text {
-  flex: 1 1 280px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.cookie-text a {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.cookie-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.cookie-btn-accept {
-  /* Inherits .cta-button — override sizing only */
-  padding: 0.5rem 1.25rem !important;
-  font-size: 13px !important;
-}
-
-.cookie-btn-decline {
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  cursor: pointer;
-  padding: 0.5rem 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 150ms ease;
-}
-
-.cookie-btn-decline:hover {
-  color: var(--color-text-primary);
-}
-
 /* ===== WCAG 2.2 AA — GLOBAL FOCUS INDICATORS =====
    :focus-visible ensures outlines appear for keyboard navigation only,
    not on mouse click. All interactive elements must be keyboard operable
@@ -785,35 +719,6 @@ button:focus-visible,
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
   border-radius: 2px;
-}
-
-/* Checkbox (briefing form consent) */
-input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.cookie-btn-decline:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-/* Mobile: stack text above buttons */
-@media (max-width: 640px) {
-  .cookie-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.875rem;
-  }
-
-  .cookie-text {
-    flex-basis: auto;
-  }
-
-  .cookie-actions {
-    width: 100%;
-  }
 }
 
 /* ==========================================================

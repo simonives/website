@@ -47,4 +47,10 @@ The canonical record `simonives.md` is additionally referenced from every page t
 
 ---
 
+## GitHub
+
+- [github.com/simonives](https://github.com/simonives) — Public projects and contributions. Includes MCP server work and tooling built in support of HR technology and AI governance practice.
+
+---
+
 # Last updated: 2026-07-15
