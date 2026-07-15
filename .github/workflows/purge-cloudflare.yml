@@ -1,18 +1,14 @@
 name: Purge Cloudflare cache
 
 on:
-  push:
-    branches:
-      - main
+  deployment_status:
 
 jobs:
   purge:
     name: Purge Cloudflare cache
     runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'github-pages'
     steps:
-      - name: Wait for GitHub Pages to deploy
-        run: sleep 30
-
       - name: Purge Cloudflare cache
         run: |
           curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
