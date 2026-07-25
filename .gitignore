@@ -55,6 +55,8 @@ STYLE_GUIDE.md
 # --- AI collaboration files ---
 # Working documents for AI-assisted development. Not needed in the public repo view.
 CLAUDE.md
+AGENTS.md
+GEMINI.md
 
 # --- Superpowers working directory ---
 # Brainstorming specs and implementation plans (superpowers methodology).
