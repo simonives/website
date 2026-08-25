@@ -74,3 +74,6 @@ backend_payload.txt
 *.zip
 *.tar.gz
 *.rar
+
+# Git worktrees (superpowers methodology)
+.worktrees/
