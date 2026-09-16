@@ -583,6 +583,12 @@ a:hover { opacity: .78; }
   padding: var(--space-8);
   box-shadow: var(--md-elevation-1);
 }
+/* On Midnight, the card's own tonal fill must lose to the Midnight band,
+   otherwise .card-filled's background shorthand (same specificity, later
+   in source) wins and inverse-on-surface text renders on a pale surface. */
+.card-filled.on-midnight {
+  background: var(--md-sys-color-inverse-surface);
+}
 
 /* Outlined card. For secondary content */
 .card-outlined {
@@ -716,6 +722,37 @@ a:hover { opacity: .78; }
   transition: background-color var(--md-motion-short) var(--md-motion-standard);
 }
 .event-row:hover { background: rgba(var(--md-state-rgb), .06); color: var(--md-sys-color-on-surface); opacity: 1; }
+/* The row's flex layout must live on the <a> itself: components.css has
+   no display override for `a`, so a bare anchor wrapping the date chip,
+   title, and meta text would otherwise stack them instead of sitting them
+   side by side. */
+.event-row > a {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  width: 100%;
+  color: inherit;
+}
+
+.event-row--past {
+  opacity: .55;
+}
+.event-row--past:hover { background: none; }
+.event-status {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--space-3);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--md-sys-color-surface-container-highest);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-on-surface-variant);
+  vertical-align: middle;
+}
 
 .event-date {
   flex: none;
