@@ -1,11 +1,11 @@
 /* ============================================================
-   fonts.css — Simon Ives / Phronesis
+   fonts.css. Simon Ives / Phronesis
    Self-hosted only. No third-party requests: every font file is
    served from this origin. See README "Fonts" for where to get
    the files and which weights are required.
    ============================================================ */
 
-/* ----- Cormorant Garamond — display -----
+/* ----- Cormorant Garamond: display -----
    H1/H2/H3, hero copy, pull quotes, the Φ mark, drop caps, ordinals.
    Weights used: 500 (all headings and the Φ mark at 600), plus
    400 italic for pull quotes. */
@@ -42,7 +42,7 @@
   src: url('fonts/cormorant-garamond/CormorantGaramond-Italic.woff2') format('woff2');
 }
 
-/* ----- Inter — body and UI -----
+/* ----- Inter: body and UI -----
    Body copy, navigation, labels, metadata, buttons, form fields.
    Weights used: 400, 500. */
 
@@ -62,7 +62,7 @@
   src: url('fonts/inter/Inter-Medium.woff2') format('woff2');
 }
 
-/* ----- Material Symbols — iconography -----
+/* ----- Material Symbols: iconography -----
    Already present on the material-design-poc branch. Iconography,
    not type: does not count against the two-family rule.
    Used for: menu, contrast (theme toggle), arrow_outward. */

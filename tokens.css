@@ -1,5 +1,5 @@
 /* ============================================================
-   tokens.css — Simon Ives / Phronesis
+   tokens.css. Simon Ives / Phronesis
    Material Design 3 token layer, seeded from Aurum (#C4962A).
    Load order: fonts.css → tokens.css → components.css
    Dark mode is controlled exclusively via html.dark.
@@ -19,7 +19,7 @@
   --brand-parchment: #F7F4EE;
   --brand-slate: #4A4468;
 
-  /* ----- M3 tonal surfaces — light theme -----
+  /* ----- M3 tonal surfaces: light theme -----
      Stepped from Parchment. Cards read by tone, not by border. */
   --md-sys-color-surface: #F7F4EE;
   --md-sys-color-surface-container-lowest: #FFFFFF;
@@ -30,7 +30,7 @@
 
   --md-sys-color-on-surface: #1D1832;          /* 14.5:1 on surface */
   --md-sys-color-on-surface-variant: #4A4468;  /*  8.1:1 on surface */
-  --md-sys-color-outline: #8D85A3;             /*  3.3:1 — UI only  */
+  --md-sys-color-outline: #8D85A3;             /*  3.3:1. UI only  */
   --md-sys-color-outline-variant: #D3CCC0;     /* decorative rules  */
 
   /* Aurum is 2.5:1 on Parchment and FAILS AA for text.
@@ -104,7 +104,7 @@
 }
 
 /* ============================================================
-   Dark theme — Midnight base, stepped upward through Slate.
+   Dark theme. Midnight base, stepped upward through Slate.
    First-class, verified independently. STYLE_GUIDE.md §2.
    ============================================================ */
 html.dark {
