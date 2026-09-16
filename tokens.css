@@ -1,0 +1,168 @@
+/* ============================================================
+   tokens.css — Simon Ives / Phronesis
+   Material Design 3 token layer, seeded from Aurum (#C4962A).
+   Load order: fonts.css → tokens.css → components.css
+   Dark mode is controlled exclusively via html.dark.
+   ============================================================ */
+
+:root {
+  /* ----- Typeface families -----
+     Two families only. STYLE_GUIDE.md §2: do not add typefaces.
+     Material Symbols is iconography, not type, and is permitted. */
+  --font-display: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ----- Brand palette (STYLE_GUIDE.md §2) ----- */
+  --brand-midnight: #1D1832;
+  --brand-aurum: #C4962A;
+  --brand-parchment: #F7F4EE;
+  --brand-slate: #4A4468;
+
+  /* ----- M3 tonal surfaces — light theme -----
+     Stepped from Parchment. Cards read by tone, not by border. */
+  --md-sys-color-surface: #F7F4EE;
+  --md-sys-color-surface-container-lowest: #FFFFFF;
+  --md-sys-color-surface-container-low: #F2EEE5;
+  --md-sys-color-surface-container: #EBE6DB;
+  --md-sys-color-surface-container-high: #E4DED1;
+  --md-sys-color-surface-container-highest: #DCD5C6;
+
+  --md-sys-color-on-surface: #1D1832;          /* 14.5:1 on surface */
+  --md-sys-color-on-surface-variant: #4A4468;  /*  8.1:1 on surface */
+  --md-sys-color-outline: #8D85A3;             /*  3.3:1 — UI only  */
+  --md-sys-color-outline-variant: #D3CCC0;     /* decorative rules  */
+
+  /* Aurum is 2.5:1 on Parchment and FAILS AA for text.
+     --md-sys-color-primary is a darkened Aurum used wherever gold
+     carries text or a small UI label. Raw Aurum (--brand-aurum) is
+     reserved for hairlines, the Φ mark and watermarks in light mode. */
+  --md-sys-color-primary: #78590C;             /*  5.8:1 on surface */
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #FFDEA1;
+  --md-sys-color-on-primary-container: #5C4300;
+  --md-sys-color-gold-rule: #C4962A;
+
+  /* Inverse = the Midnight bands that carry the site's visual weight */
+  --md-sys-color-inverse-surface: #1D1832;
+  --md-sys-color-inverse-on-surface: #F7F4EE; /* 14.5:1 */
+  --md-sys-color-inverse-primary: #DFB65A;    /*  8.5:1 on Midnight */
+
+  --md-sys-color-error: #8C1D18;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-success: #2D5A34;
+
+  /* State-layer base, as an r,g,b triplet for rgba() composition */
+  --md-state-rgb: 29, 24, 50;
+  --md-state-hover: 0.08;
+  --md-state-focus: 0.12;
+  --md-state-pressed: 0.12;
+
+  /* ----- M3 elevation ----- */
+  --md-elevation-0: none;
+  --md-elevation-1: 0 1px 2px rgba(29, 24, 50, .10), 0 1px 3px 1px rgba(29, 24, 50, .06);
+  --md-elevation-2: 0 1px 2px rgba(29, 24, 50, .10), 0 2px 6px 2px rgba(29, 24, 50, .07);
+  --md-elevation-3: 0 4px 8px 3px rgba(29, 24, 50, .09), 0 1px 3px rgba(29, 24, 50, .10);
+
+  /* ----- M3 shape scale ----- */
+  --md-shape-none: 0px;
+  --md-shape-extra-small: 4px;
+  --md-shape-small: 8px;
+  --md-shape-medium: 12px;
+  --md-shape-large: 16px;
+  --md-shape-extra-large: 28px;
+  --md-shape-full: 999px;
+
+  /* ----- M3 motion ----- */
+  --md-motion-standard: cubic-bezier(.2, 0, 0, 1);
+  --md-motion-emphasised: cubic-bezier(.2, 0, 0, 1);
+  --md-motion-short: 200ms;
+  --md-motion-medium: 300ms;
+  --md-motion-long: 500ms;
+
+  /* ----- 4dp / 8dp spacing rhythm ----- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-18: 72px;
+  --space-20: 80px;
+  --space-22: 88px;
+  --space-26: 104px;
+
+  /* ----- Layout ----- */
+  --container-max: 1200px;
+  --container-pad: 32px;
+  --reading-max: 680px;   /* ~68 characters at 17.5px Inter */
+}
+
+/* ============================================================
+   Dark theme — Midnight base, stepped upward through Slate.
+   First-class, verified independently. STYLE_GUIDE.md §2.
+   ============================================================ */
+html.dark {
+  --md-sys-color-surface: #1D1832;
+  --md-sys-color-surface-container-lowest: #171327;
+  --md-sys-color-surface-container-low: #221D3A;
+  --md-sys-color-surface-container: #282242;
+  --md-sys-color-surface-container-high: #302949;
+  --md-sys-color-surface-container-highest: #382F54;
+
+  --md-sys-color-on-surface: #F4F1EB;          /* 14.2:1 on surface */
+  --md-sys-color-on-surface-variant: #C6C0D6;  /*  9.4:1 on surface */
+  --md-sys-color-outline: #807996;
+  --md-sys-color-outline-variant: #433C5E;
+
+  /* In dark mode Aurum clears AA on Midnight (5.9:1), so gold can
+     carry text directly. The lighter tone is used for larger type. */
+  --md-sys-color-primary: #DFB65A;             /*  8.5:1 on surface */
+  --md-sys-color-on-primary: #402D00;
+  --md-sys-color-primary-container: #5C4300;
+  --md-sys-color-on-primary-container: #FFDEA1;
+  --md-sys-color-gold-rule: #C4962A;
+
+  --md-sys-color-inverse-surface: #EDE8DE;
+  --md-sys-color-inverse-on-surface: #1D1832;
+  --md-sys-color-inverse-primary: #78590C;
+
+  --md-sys-color-error: #FFB4AB;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-success: #8FD09A;
+
+  --md-state-rgb: 244, 241, 235;
+
+  --md-elevation-1: 0 1px 3px rgba(0, 0, 0, .45), 0 1px 3px 1px rgba(0, 0, 0, .30);
+  --md-elevation-2: 0 2px 6px rgba(0, 0, 0, .50), 0 4px 10px 2px rgba(0, 0, 0, .30);
+  --md-elevation-3: 0 4px 12px rgba(0, 0, 0, .55), 0 6px 16px 3px rgba(0, 0, 0, .32);
+}
+
+/* ============================================================
+   Legacy aliases.
+   The pre-refresh style.css and style-v2.css reference these
+   names throughout. Keep them until every selector is migrated,
+   then delete this block and style.css with it.
+   ============================================================ */
+:root, html.dark {
+  --color-accent: var(--md-sys-color-primary);
+  --color-aurum: var(--brand-aurum);
+  --color-gold: var(--md-sys-color-primary);
+  --color-gold-muted: var(--md-sys-color-gold-rule);
+  --color-bg-primary: var(--md-sys-color-surface);
+  --color-bg-surface: var(--md-sys-color-surface-container);
+  --color-parchment: var(--brand-parchment);
+  --color-obsidian: var(--md-sys-color-surface);
+  --color-slate: var(--md-sys-color-surface-container);
+  --color-slate-light: var(--md-sys-color-surface-container-high);
+  --color-text-primary: var(--md-sys-color-on-surface);
+  --color-text-secondary: var(--md-sys-color-on-surface-variant);
+  --color-text-tertiary: var(--md-sys-color-on-surface-variant);
+  --color-border: var(--md-sys-color-outline-variant);
+  --transition-premium: all var(--md-motion-medium) var(--md-motion-standard);
+}
