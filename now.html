@@ -23,11 +23,9 @@
     <title>Now — Simon Ives</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Φ</text></svg>">
     <link rel="author" type="text/markdown" href="simonives.md">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-v2.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="components.css">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -68,6 +66,7 @@
                     <li><a href="now.html" class="active">Now</a></li>
                     <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="phronesis-link">Phronesis ↗</a></li>
                 </ul>
+                <div class="nav-divider"></div>
                 <button id="theme-toggle" aria-label="Toggle colour theme">◐</button>
                 <div class="header-social">
                     <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
@@ -97,55 +96,110 @@
         </script>
     </header>
 
-    <main class="now-page">
-        <section class="hero section-padding">
-            <div class="container prose">
+    <main>
+        <section class="hero on-midnight section-padding">
+            <span class="phi-watermark" aria-hidden="true">Φ</span>
+            <div class="container hero-content prose">
+                <span class="eyebrow">A living page</span>
                 <h1>Now</h1>
                 <p class="lead">
                     A living page: what Simon is working on, where he will be, and what he is publishing.
                     Kept current.
                 </p>
+            </div>
+        </section>
 
-                <p class="now-label">Currently</p>
-                <p>
-                    Simon leads HR technology strategy at <a href="https://www.bhp.com" target="_blank" rel="noopener noreferrer">BHP</a> and chairs its HR AI Governance Committee. He
-                    sits on the advisory boards of <a href="https://www.sap.com" target="_blank" rel="noopener noreferrer">SAP SuccessFactors</a> and <a href="https://www.servicenow.com" target="_blank" rel="noopener noreferrer">ServiceNow</a>. Through the <a href="https://www.ahri.com.au" target="_blank" rel="noopener noreferrer">Australian
-                    HR Institute</a> he serves on the Queensland State Council and mentors HR practitioners.
-                </p>
+        <section class="section-padding alternate-bg">
+            <div class="container">
+                <div class="now-grid">
+                    <div class="card-filled">
+                        <span class="eyebrow">Currently</span>
+                        <p>
+                            Simon leads HR technology strategy at <a href="https://www.bhp.com" target="_blank" rel="noopener noreferrer">BHP</a> and chairs its HR AI Governance Committee. He
+                            sits on the advisory boards of <a href="https://www.sap.com" target="_blank" rel="noopener noreferrer">SAP SuccessFactors</a> and <a href="https://www.servicenow.com" target="_blank" rel="noopener noreferrer">ServiceNow</a>. Through the <a href="https://www.ahri.com.au" target="_blank" rel="noopener noreferrer">Australian
+                            HR Institute</a> he serves on the Queensland State Council and mentors HR practitioners.
+                        </p>
+                    </div>
 
-                <p class="now-label">Where he'll be</p>
-                <p>
-                    <strong>12 August 2026, Sydney.</strong> <a href="https://www.sap.com/australia/events/sapnowanz.html" target="_blank" rel="noopener noreferrer">SAP NOW ANZ</a> — <a href="https://www.sap.com" target="_blank" rel="noopener noreferrer">SAP</a>'s annual enterprise AI and technology event.
-                </p>
-                <p>
-                    <strong>13 August 2026, Sydney.</strong> <a href="https://www.snowflake.com/en/world-tour/sydney/" target="_blank" rel="noopener noreferrer">Snowflake World Tour Sydney</a> — <a href="https://www.snowflake.com" target="_blank" rel="noopener noreferrer">Snowflake</a>'s data and AI summit.
-                </p>
-                <p>
-                    <strong>1 September 2026, Sydney.</strong> <a href="https://www.sap.com/australia/events/2026-09-01-au-sap-hr-connect-sydney.html" target="_blank" rel="noopener noreferrer">SAP HR Connect Sydney</a> — the <a href="https://www.sap.com" target="_blank" rel="noopener noreferrer">SAP</a> SuccessFactors event for HR practitioners.
-                </p>
+                    <div class="card-outlined">
+                        <span class="eyebrow">Where he'll be</span>
+                        <ul class="event-list" style="list-style: none; margin: 0; padding: 0;">
+                            <li class="event-row">
+                                <a href="https://www.sap.com/australia/events/sapnowanz.html" target="_blank" rel="noopener noreferrer">
+                                    <span class="event-date"><strong>12</strong>Aug</span>
+                                    <span class="event-title">SAP NOW ANZ</span>
+                                    <span class="event-meta">Sydney, 2026 — SAP's annual enterprise AI and technology event.</span>
+                                </a>
+                            </li>
+                            <li class="event-row">
+                                <a href="https://www.snowflake.com/en/world-tour/sydney/" target="_blank" rel="noopener noreferrer">
+                                    <span class="event-date"><strong>13</strong>Aug</span>
+                                    <span class="event-title">Snowflake World Tour Sydney</span>
+                                    <span class="event-meta">Sydney, 2026 — Snowflake's data and AI summit.</span>
+                                </a>
+                            </li>
+                            <li class="event-row">
+                                <a href="https://www.sap.com/australia/events/2026-09-01-au-sap-hr-connect-sydney.html" target="_blank" rel="noopener noreferrer">
+                                    <span class="event-date"><strong>1</strong>Sep</span>
+                                    <span class="event-title">SAP HR Connect Sydney</span>
+                                    <span class="event-meta">Sydney, 2026 — the SAP SuccessFactors event for HR practitioners.</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
-                <p class="now-label">From Phronesis</p>
-                <p>
-                    Simon's current thinking lives at
-                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer">Phronesis</a>,
-                    his fortnightly writing on workforce strategy, AI governance, and enterprise
-                    transformation.
-                </p>
-                <p>
-                    <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="cta-link">Read all of Phronesis ↗</a>
-                </p>
-
-                <p class="now-label">Still going</p>
-                <p>
-                    Most of a working life is recorded in the past tense. This page is kept in the present on
-                    purpose. It carries only what is true right now, and the clearest signal of where Simon's
-                    attention sits is the writing above, still going.
-                </p>
-
+                    <div class="card-filled on-midnight full">
+                        <span class="phi-watermark phi-watermark--card" aria-hidden="true">Φ</span>
+                        <span class="eyebrow">From Phronesis</span>
+                        <p>
+                            Simon's current thinking lives at
+                            <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer">Phronesis</a>,
+                            his fortnightly writing on workforce strategy, AI governance, and enterprise
+                            transformation.
+                        </p>
+                        <p>
+                            <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="btn-filled">Read all of Phronesis ↗</a>
+                        </p>
+                        <span class="eyebrow">Still going</span>
+                        <p>
+                            Most of a working life is recorded in the past tense. This page is kept in the present on
+                            purpose. It carries only what is true right now, and the clearest signal of where Simon's
+                            attention sits is the writing above, still going.
+                        </p>
+                    </div>
+                </div>
                 <p class="now-updated">Currently and travel last updated · 15 July 2026</p>
             </div>
         </section>
     </main>
+
+    <!-- PLACEHOLDER COPY, pending content pass, do not treat as final. See docs/superpowers/plans/2026-09-16-material-design-site-refresh.md Task 8. -->
+    <section class="engage-section">
+      <div class="container">
+        <span class="eyebrow">Where to next</span>
+        <div class="engage-grid">
+          <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Read</span>
+            <span class="engage-title">Phronesis</span>
+            <p class="engage-body">Practical wisdom for enterprise transformation, published fortnightly on Substack.</p>
+            <span class="engage-link">Read on Substack ↗</span>
+          </a>
+          <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Connect</span>
+            <span class="engage-title">LinkedIn</span>
+            <p class="engage-body">Where the arguments in Phronesis get tested in the open.</p>
+            <span class="engage-link">Connect on LinkedIn ↗</span>
+          </a>
+          <a href="doctrine.html" class="engage-block">
+            <span class="engage-tag">Understand</span>
+            <span class="engage-title">The approach</span>
+            <p class="engage-body">Three habits of thought, formed inside the work rather than applied to it.</p>
+            <span class="engage-link">Read the approach →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+    <!-- END PLACEHOLDER COPY -->
 
     <footer class="site-footer on-midnight">
         <div class="container footer-band">
@@ -155,7 +209,7 @@
                 <span aria-hidden="true"> · </span>
                 <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer">Connect on LinkedIn ↗</a>
             </p>
-            <hr class="footer-rule">
+            <div class="phi-break" aria-hidden="true"><span>Φ</span></div>
             <div class="footer-content">
                 <div class="footer-copy">
                     <p>&copy; 2026 Simon Ives. All rights reserved.</p>
