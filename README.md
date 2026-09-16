@@ -2,7 +2,7 @@
 
 Personal website of **Simon Ives, FCPHR, MBA** — practitioner-writer at the intersection of workforce strategy, AI governance, and organisational design.
 
-Live at [simonives.com](https://www.simonives.com) · Published via GitHub Pages
+Live at [simonives.com](https://simonives.com) · Published via GitHub Pages
 
 ---
 
