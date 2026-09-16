@@ -1,0 +1,27 @@
+name: Check canonical host
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  check:
+    name: No www.simonives.com references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if www.simonives.com appears anywhere
+        run: |
+          if grep -rl "www\.simonives\.com" \
+              --include="*.html" --include="*.txt" --include="*.xml" --include="*.md" \
+              --exclude-dir=".git" .; then
+            echo ""
+            echo "::error::Found a reference to www.simonives.com. The apex domain (simonives.com, no www) is canonical."
+            echo "::error::GitHub Pages serves the apex directly; Cloudflare 301-redirects www to it, which several AI fetch tools won't follow (see issue #72)."
+            echo "::error::Fix: use https://simonives.com instead of https://www.simonives.com in every canonical reference (<link rel=canonical>, og:url, sitemap.xml, llms.txt, simonives.md, robots.txt, JSON-LD)."
+            exit 1
+          fi
+          echo "Clean, no www.simonives.com references found."
