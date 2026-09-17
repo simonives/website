@@ -469,6 +469,10 @@ a:hover { opacity: .78; }
   border: none;
   box-shadow: var(--md-elevation-1);
 }
+/* .on-midnight a (an element+class selector) otherwise outranks the plain
+   .btn-filled class at rest, painting the label the same Aurum as its own
+   background, invisible until :hover's higher specificity takes over. */
+.on-midnight .btn-filled { color: #241B04; }
 .btn-filled:hover { box-shadow: var(--md-elevation-2); transform: translateY(-1px); color: #241B04; opacity: 1; }
 .btn-filled:active { transform: none; box-shadow: var(--md-elevation-1); }
 
