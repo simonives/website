@@ -23,11 +23,9 @@
     <title>Approach — Simon Ives</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Φ</text></svg>">
     <link rel="author" type="text/markdown" href="simonives.md">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-v2.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="components.css">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -65,6 +63,7 @@
                     <li><a href="now.html">Now</a></li>
                     <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="phronesis-link">Phronesis ↗</a></li>
                 </ul>
+                <div class="nav-divider"></div>
                 <button id="theme-toggle" aria-label="Toggle colour theme">◐</button>
                 <div class="header-social">
                     <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
@@ -91,13 +90,23 @@
                     navContainer.classList.toggle('is-active');
                     document.body.classList.toggle('no-scroll');
                 });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                        navContainer.classList.remove('is-active');
+                        document.body.classList.remove('no-scroll');
+                        menuToggle.focus();
+                    }
+                });
             });
         </script>
     </header>
 
     <main>
-        <section class="hero section-padding">
-            <div class="container prose">
+        <section class="hero on-midnight section-padding">
+            <span class="phi-watermark" aria-hidden="true">Φ</span>
+            <div class="container hero-content prose">
                 <span class="eyebrow">Approach</span>
                 <h1>Transformation is a problem of judgement.</h1>
                 <p class="lead">
@@ -108,26 +117,20 @@
             </div>
         </section>
         <section class="section-padding alternate-bg">
-            <div class="container approach-layout">
-                <nav class="approach-rail" aria-label="The three practices">
-                    <ol>
-                        <li class="current">01 Socratic</li>
-                        <li>02 Utilitarian</li>
-                        <li>03 Polyrhythm</li>
-                    </ol>
-                </nav>
-                <div class="prose">
-                    <p class="reveal">
-                        It is why his programmes tend to survive contact with the organisations they are meant
-                        to change, when so many do not. What he brings is a disposition, formed over years
-                        inside the work rather than applied to it from outside, and it resolves into three
-                        habits of thought. Aristotle had a word for the faculty they draw on. He called it
-                        phronesis: the practical wisdom that formal knowledge cannot supply, the capacity to
-                        reason well about situations that refuse to hold still. Simon has spent a career
-                        learning to exercise it at scale.
-                    </p>
-                    <article class="reveal" id="practice-socratic">
-                        <hr class="section-marker">
+            <div class="container prose">
+                <p class="reveal">
+                    It is why his programmes tend to survive contact with the organisations they are meant
+                    to change, when so many do not. What he brings is a disposition, formed over years
+                    inside the work rather than applied to it from outside, and it resolves into three
+                    habits of thought. Aristotle had a word for the faculty they draw on. He called it
+                    phronesis: the practical wisdom that formal knowledge cannot supply, the capacity to
+                    reason well about situations that refuse to hold still. Simon has spent a career
+                    learning to exercise it at scale.
+                </p>
+                <article class="practice-card reveal" id="practice-socratic">
+                    <span class="ordinal" aria-hidden="true">01</span>
+                    <div class="practice-body">
+                        <span class="eyebrow">Practice one</span>
                         <h2>The Socratic practice</h2>
                         <p>
                             Hand Simon a problem and he begins where almost no one begins, by doubting its
@@ -141,9 +144,12 @@
                             solve a problem no one actually had.
                         </p>
                         <p class="pullquote">The stated problem is a claim, never granted the status of fact until it has earned it.</p>
-                    </article>
-                    <article class="reveal" id="practice-utilitarian">
-                        <hr class="section-marker">
+                    </div>
+                </article>
+                <article class="practice-card reveal" id="practice-utilitarian">
+                    <span class="ordinal" aria-hidden="true">02</span>
+                    <div class="practice-body">
+                        <span class="eyebrow">Practice two</span>
                         <h2>The utilitarian practice</h2>
                         <p>
                             The second habit is a moral one, though Simon would not use the word about himself.
@@ -156,10 +162,18 @@
                             holds the systems he is responsible for to the good they return, and counts their
                             friction as a cost, because someone always pays it.
                         </p>
-                    </article>
-                    <article class="reveal" id="practice-polyrhythm">
-                        <hr class="section-marker">
+                    </div>
+                </article>
+                <article class="practice-card reveal" id="practice-polyrhythm">
+                    <span class="ordinal" aria-hidden="true">03</span>
+                    <div class="practice-body">
+                        <span class="eyebrow">Practice three</span>
                         <h2>The polyrhythm of transformation</h2>
+                        <div class="polyrhythm-diagram" aria-hidden="true">
+                            <div><i></i></div>
+                            <div><i></i><i></i></div>
+                            <div><i></i><i></i></div>
+                        </div>
                         <p>
                             The third habit took the longest to see, and it is the hardest to see from outside,
                             and it is the most distinctive thing about the way Simon works. Enterprise change,
@@ -176,17 +190,45 @@
                             decision answers to. It is a musician's discipline carried into an industrial one,
                             and almost no one else in the field thinks this way.
                         </p>
-                    </article>
-                    <p class="reveal">
-                        None of this was arrived at in the abstract. Each habit was formed under load, on real
-                        programmes at real scale, and the record of that is the rest of this site. What the
-                        record shows, read closely, is a single mind refusing the easy version of a hard
-                        problem, again and again, across a career.
-                    </p>
-                </div>
+                    </div>
+                </article>
+                <p class="reveal">
+                    None of this was arrived at in the abstract. Each habit was formed under load, on real
+                    programmes at real scale, and the record of that is the rest of this site. What the
+                    record shows, read closely, is a single mind refusing the easy version of a hard
+                    problem, again and again, across a career.
+                </p>
             </div>
         </section>
     </main>
+
+    <!-- PLACEHOLDER COPY, pending content pass, do not treat as final. See docs/superpowers/plans/2026-09-16-material-design-site-refresh.md Task 8. -->
+    <section class="engage-section">
+      <div class="container">
+        <span class="eyebrow">Where to next</span>
+        <div class="engage-grid">
+          <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Read</span>
+            <span class="engage-title">Phronesis</span>
+            <p class="engage-body">Practical wisdom for enterprise transformation, published fortnightly on Substack.</p>
+            <span class="engage-link">Read on Substack ↗</span>
+          </a>
+          <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Connect</span>
+            <span class="engage-title">LinkedIn</span>
+            <p class="engage-body">Where the arguments in Phronesis get tested in the open.</p>
+            <span class="engage-link">Connect on LinkedIn ↗</span>
+          </a>
+          <a href="portfolio.html" class="engage-block">
+            <span class="engage-tag">See</span>
+            <span class="engage-title">The track record</span>
+            <p class="engage-body">How the work was governed, in practice.</p>
+            <span class="engage-link">Read the track record →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+    <!-- END PLACEHOLDER COPY -->
 
     <footer class="site-footer on-midnight">
         <div class="container footer-band">
@@ -196,7 +238,7 @@
                 <span aria-hidden="true"> · </span>
                 <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer">Connect on LinkedIn ↗</a>
             </p>
-            <hr class="footer-rule">
+            <div class="phi-break" aria-hidden="true"><span>Φ</span></div>
             <div class="footer-content">
                 <div class="footer-copy">
                     <p>&copy; 2026 Simon Ives. All rights reserved.</p>
@@ -229,26 +271,6 @@
                 var isDark = document.documentElement.classList.toggle('dark');
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
-        }
-
-        // Approach-rail scroll tracker — updates .current as user scrolls
-        if ('IntersectionObserver' in window) {
-            var railArticles = document.querySelectorAll('.approach-layout article');
-            var railItems = document.querySelectorAll('.approach-rail li');
-            if (railArticles.length && railItems.length) {
-                var railObs = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            var idx = Array.prototype.indexOf.call(railArticles, entry.target);
-                            if (idx > -1) {
-                                railItems.forEach(function (li) { li.classList.remove('current'); });
-                                railItems[idx].classList.add('current');
-                            }
-                        }
-                    });
-                }, { rootMargin: '-20% 0px -60% 0px' });
-                railArticles.forEach(function (a) { railObs.observe(a); });
-            }
         }
 
         // Reveal-on-scroll — opt in only when motion is allowed

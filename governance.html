@@ -23,11 +23,9 @@
     <title>Information Governance — Simon Ives</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Φ</text></svg>">
     <link rel="author" type="text/markdown" href="simonives.md">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-v2.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="components.css">
 
     <script type="application/ld+json">
     {
@@ -68,6 +66,7 @@
                     <li><a href="now.html">Now</a></li>
                     <li><a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="phronesis-link">Phronesis ↗</a></li>
                 </ul>
+                <div class="nav-divider"></div>
                 <button id="theme-toggle" aria-label="Toggle colour theme">◐</button>
                 <div class="header-social">
                     <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
@@ -93,6 +92,15 @@
                     menuToggle.setAttribute('aria-expanded', !expanded);
                     navContainer.classList.toggle('is-active');
                     document.body.classList.toggle('no-scroll');
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                        navContainer.classList.remove('is-active');
+                        document.body.classList.remove('no-scroll');
+                        menuToggle.focus();
+                    }
                 });
             });
         </script>
@@ -177,6 +185,34 @@
         </section>
     </main>
 
+    <!-- PLACEHOLDER COPY, pending content pass, do not treat as final. See docs/superpowers/plans/2026-09-16-material-design-site-refresh.md Task 8. -->
+    <section class="engage-section">
+      <div class="container">
+        <span class="eyebrow">Where to next</span>
+        <div class="engage-grid">
+          <a href="https://enterprisephronesis.substack.com" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Read</span>
+            <span class="engage-title">Phronesis</span>
+            <p class="engage-body">Practical wisdom for enterprise transformation, published fortnightly on Substack.</p>
+            <span class="engage-link">Read on Substack ↗</span>
+          </a>
+          <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer" class="engage-block">
+            <span class="engage-tag">Connect</span>
+            <span class="engage-title">LinkedIn</span>
+            <p class="engage-body">Where the arguments in Phronesis get tested in the open.</p>
+            <span class="engage-link">Connect on LinkedIn ↗</span>
+          </a>
+          <a href="portfolio.html" class="engage-block">
+            <span class="engage-tag">See</span>
+            <span class="engage-title">The track record</span>
+            <p class="engage-body">How the work was governed, in practice.</p>
+            <span class="engage-link">Read the track record →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+    <!-- END PLACEHOLDER COPY -->
+
     <footer class="site-footer on-midnight">
         <div class="container footer-band">
             <p class="footer-tagline">Practical wisdom for enterprise transformation.</p>
@@ -185,7 +221,7 @@
                 <span aria-hidden="true"> · </span>
                 <a href="https://www.linkedin.com/in/simonives" target="_blank" rel="noopener noreferrer">Connect on LinkedIn ↗</a>
             </p>
-            <hr class="footer-rule">
+            <div class="phi-break" aria-hidden="true"><span>Φ</span></div>
             <div class="footer-content">
                 <div class="footer-copy">
                     <p>&copy; 2026 Simon Ives. All rights reserved.</p>
