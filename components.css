@@ -124,8 +124,8 @@ a:hover { opacity: .78; }
    alone would fall short of the WCAG 1.4.1 non-colour requirement. */
 .prose p > a,
 .prose li > a,
-.card-filled p > a,
-.card-outlined p > a {
+.card-filled p > a:not(.btn-filled):not(.btn-outlined):not(.cta-button),
+.card-outlined p > a:not(.btn-filled):not(.btn-outlined):not(.cta-button) {
   border-bottom: 1px solid rgba(var(--md-state-rgb), .28);
 }
 
@@ -218,7 +218,7 @@ a:hover { opacity: .78; }
   align-items: center;
   gap: var(--space-4);
   max-width: var(--reading-max);
-  margin: var(--space-14) 0;
+  margin: var(--space-14) auto;
 }
 .phi-break::before,
 .phi-break::after {
