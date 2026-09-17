@@ -858,11 +858,14 @@ a:hover { opacity: .78; }
   color: var(--md-sys-color-inverse-on-surface);
   opacity: 1;
   margin: 0 0 var(--space-4);
+  text-align: center; /* the global `p { text-align: left }` rule targets
+    this element directly, so .footer-band's inherited center never wins */
 }
 
 .footer-orient {
   font-size: 16px;
   margin: 0 0 var(--space-8);
+  text-align: center; /* same override as .footer-tagline above */
 }
 .footer-orient a { color: var(--brand-aurum); }
 
