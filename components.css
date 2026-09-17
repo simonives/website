@@ -737,7 +737,7 @@ a:hover { opacity: .78; }
 .event-row--past {
   opacity: .55;
 }
-.event-row--past:hover { background: none; }
+.event-row--past:hover { background: none; opacity: .55; }
 .event-status {
   display: inline-flex;
   align-items: center;
