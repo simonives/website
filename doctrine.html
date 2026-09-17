@@ -90,6 +90,15 @@
                     navContainer.classList.toggle('is-active');
                     document.body.classList.toggle('no-scroll');
                 });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                        navContainer.classList.remove('is-active');
+                        document.body.classList.remove('no-scroll');
+                        menuToggle.focus();
+                    }
+                });
             });
         </script>
     </header>
