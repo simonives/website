@@ -92,6 +92,5 @@
   user-select: none;
 }
 
-/* Roboto and Roboto Flex remain in fonts/ but are no longer
-   referenced. STYLE_GUIDE.md §2 permits two families only, and
-   --font-display is Cormorant Garamond. Do not re-declare them. */
+/* STYLE_GUIDE.md §2 permits two families only, and --font-display is
+   Cormorant Garamond, not Roboto or Roboto Flex. Do not declare them. */

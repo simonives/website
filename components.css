@@ -117,9 +117,15 @@ a {
 }
 a:hover { opacity: .78; }
 
-/* Inline prose links get a hairline underline rather than colour alone */
+/* Inline prose links get a hairline underline rather than colour alone.
+   Also covers card body copy (the Now page's .card-filled/.card-outlined
+   text isn't wrapped in .prose, since that would cap the card grid's width
+   along with the reading column), wherever link-vs-text colour contrast
+   alone would fall short of the WCAG 1.4.1 non-colour requirement. */
 .prose p > a,
-.prose li > a {
+.prose li > a,
+.card-filled p > a,
+.card-outlined p > a {
   border-bottom: 1px solid rgba(var(--md-state-rgb), .28);
 }
 
@@ -391,7 +397,7 @@ a:hover { opacity: .78; }
 .nav-divider {
   width: 1px;
   height: 24px;
-  background: var(--md-sys-color-outline-var, var(--md-sys-color-outline-variant));
+  background: var(--md-sys-color-outline-variant);
   margin: 0 10px;
 }
 
@@ -490,7 +496,7 @@ a:hover { opacity: .78; }
 
 .on-midnight .btn-outlined,
 .on-midnight .cta-button {
-  border-color: rgba(196, 150, 42, .55);
+  border-color: rgba(196, 150, 42, .62); /* 3:1 non-text floor on Midnight */
   color: var(--brand-aurum);
 }
 .on-midnight .btn-outlined:hover,
@@ -738,10 +744,12 @@ a:hover { opacity: .78; }
   color: inherit;
 }
 
-.event-row--past {
-  opacity: .55;
-}
-.event-row--past:hover { background: none; opacity: .55; }
+/* Muted via explicit token colours, not opacity: opacity composites text
+   and chip backgrounds together toward the card surface and drops several
+   of these pairings below WCAG AA (measured 2.33-3.75:1 against a 4.5:1
+   floor). Each element below keeps its own already-verified pairing. */
+.event-row--past .event-title { color: var(--md-sys-color-on-surface-variant); }
+.event-row--past .event-date { background: var(--md-sys-color-surface-container-low); }
 .event-status {
   display: inline-flex;
   align-items: center;
