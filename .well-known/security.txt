@@ -1,0 +1,8 @@
+Contact: mailto:security@simonives.com
+Expires: 2027-09-29T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://simonives.com/.well-known/security.txt
+
+# simonives.com is a static personal website (GitHub Pages behind Cloudflare)
+# with no server, no database, and no user accounts. Please report any
+# genuine security vulnerability (not general feedback) to the address above.
