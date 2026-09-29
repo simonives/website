@@ -37,6 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    var backToTop = document.querySelector('.back-to-top');
+    if (backToTop) {
+        function updateBackToTop() {
+            backToTop.classList.toggle('is-visible', window.scrollY > 300);
+        }
+        window.addEventListener('scroll', updateBackToTop, { passive: true });
+        updateBackToTop();
+        backToTop.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+        });
+    }
+
     // Reveal-on-scroll — opt in only when motion is allowed
     var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var revealEls = document.querySelectorAll('.reveal');
