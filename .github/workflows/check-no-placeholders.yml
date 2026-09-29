@@ -1,0 +1,26 @@
+name: Check no placeholders
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  check:
+    name: No PLACEHOLDER or internal plan paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if PLACEHOLDER or docs/superpowers appears anywhere published
+        run: |
+          if grep -rl "PLACEHOLDER\|docs/superpowers" \
+              --include="*.html" --include="*.txt" --include="*.xml" --include="*.md" \
+              --exclude-dir=".git" --exclude="README.md" .; then
+            echo ""
+            echo "::error::Found a PLACEHOLDER marker or an internal docs/superpowers plan path in a published file."
+            echo "::error::Placeholder copy must be finalised (and the comment removed) before merging, and internal plan paths must never appear in public markup (see issue #81)."
+            exit 1
+          fi
+          echo "Clean, no placeholder markers or internal plan paths found."

@@ -84,27 +84,6 @@
                 </div>
             </div>
         </nav>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuToggle = document.querySelector('.menu-toggle');
-                const navContainer = document.querySelector('.nav-container');
-                menuToggle.addEventListener('click', () => {
-                    const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
-                    menuToggle.setAttribute('aria-expanded', !expanded);
-                    navContainer.classList.toggle('is-active');
-                    document.body.classList.toggle('no-scroll');
-                });
-
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && menuToggle.getAttribute('aria-expanded') === 'true') {
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                        navContainer.classList.remove('is-active');
-                        document.body.classList.remove('no-scroll');
-                        menuToggle.focus();
-                    }
-                });
-            });
-        </script>
     </header>
 
     <main id="main-content">
@@ -201,7 +180,6 @@
         </section>
     </main>
 
-    <!-- PLACEHOLDER COPY, pending content pass, do not treat as final. See docs/superpowers/plans/2026-09-16-material-design-site-refresh.md Task 8. -->
     <section class="engage-section">
       <div class="container">
         <span class="eyebrow">Where to next</span>
@@ -227,7 +205,6 @@
         </div>
       </div>
     </section>
-    <!-- END PLACEHOLDER COPY -->
 
     <footer class="site-footer on-midnight">
         <div class="container footer-band">
@@ -251,27 +228,6 @@
             </div>
         </div>
     </footer>
-
-
-    <script>
-    (function () {
-        var header = document.querySelector('.site-header');
-        if (header) {
-            function updateScrolled() {
-                header.classList.toggle('scrolled', window.scrollY > 10);
-            }
-            window.addEventListener('scroll', updateScrolled, { passive: true });
-            updateScrolled();
-        }
-
-        var toggle = document.getElementById('theme-toggle');
-        if (toggle) {
-            toggle.addEventListener('click', function () {
-                var isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            });
-        }
-    })();
-    </script>
+    <script defer src="site.js"></script>
 </body>
 </html>

@@ -95,6 +95,25 @@ Precise, authoritative, practitioner-led. Australian English throughout — orga
 
 ---
 
+## Security headers
+
+All response headers below are set at the Cloudflare edge (zone `simonives.com`), not in this repository's code. They're documented here so the repo stays the source of truth for what's configured, even though the config itself lives in Cloudflare.
+
+| Header | Value | Configured via |
+|---|---|---|
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'sha256-SxngmtwIFkM1er6fAlc6RCB8lSGI1V1xQuppqyQzU5Y='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests` | Response Header Transform Rule |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Response Header Transform Rule |
+| `X-Frame-Options` | `DENY` | Response Header Transform Rule |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()` | Response Header Transform Rule |
+| `Strict-Transport-Security` | `max-age=15552000` (180 days), no `includeSubDomains`, no `preload` | Zone SSL/TLS settings |
+
+Notes:
+- `script-src` uses a sha256 hash rather than `'unsafe-inline'`, generated from the single shared inline theme script (`scripts/csp-hashes.sh`, checked in CI). The mobile nav, header scroll, theme toggle, and reveal-on-scroll logic all live in `site.js`, loaded with `defer`, and don't need a hash since they're not inline.
+- `style-src` still permits `'unsafe-inline'`: one inline `style=` attribute exists (`now.html`) and removing it isn't worth the churn for a static site with no user input.
+- HSTS `includeSubDomains` is deliberately left off. It has no effect on the domain's MX records (HSTS only governs HTTPS browser behaviour, never mail delivery), but there's currently no subdomain besides `www` (which redirects to the apex), so there's nothing to gain from it yet and no reason to pre-commit every future subdomain to HTTPS-only before it exists.
+
+---
+
 ## Maintenance notes
 
 - Edit the corresponding `.html` file to update any page's content
