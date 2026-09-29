@@ -1,0 +1,11 @@
+Contact: mailto:security@simonives.com
+Expires: 2027-09-29T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://simonives.com/.well-known/security.txt
+
+# This is a courtesy copy for scanners that check the root path.
+# The canonical, authoritative copy lives at /.well-known/security.txt
+# per RFC 9116. simonives.com is a static personal website (GitHub Pages
+# behind Cloudflare) with no server, no database, and no user accounts.
+# Please report any genuine security vulnerability (not general feedback)
+# to the address above.
