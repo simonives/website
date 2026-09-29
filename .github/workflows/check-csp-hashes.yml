@@ -1,0 +1,25 @@
+name: Check CSP hashes
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  check:
+    name: Inline theme script hash matches recorded value
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Recompute hashes and diff against the committed record
+        run: |
+          cp scripts/csp-hashes.txt scripts/csp-hashes.committed.txt
+          ./scripts/csp-hashes.sh
+          if ! diff -q scripts/csp-hashes.committed.txt scripts/csp-hashes.txt > /dev/null; then
+            echo ""
+            echo "::error::scripts/csp-hashes.txt is out of date. Run ./scripts/csp-hashes.sh locally, commit the updated file, and update the Cloudflare Transform Rule's script-src with the new hash (see #91)."
+            exit 1
+          fi
+          echo "CSP hash matches the committed record."
