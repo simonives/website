@@ -295,7 +295,7 @@ a:hover { opacity: .78; }
               border-color var(--md-motion-short) var(--md-motion-standard);
 }
 
-/* .scrolled is toggled in JS at scrollY > 8. M3 on-scroll elevation */
+/* .scrolled is toggled in JS at scrollY > 10. M3 on-scroll elevation */
 .site-header.scrolled {
   border-bottom-color: transparent;
   box-shadow: var(--md-elevation-1);
@@ -936,6 +936,27 @@ textarea:focus-visible,
 }
 .on-midnight a:focus-visible,
 .on-midnight button:focus-visible { outline-color: var(--brand-aurum); }
+
+/* SKIP LINK. WCAG 2.4.1 Bypass Blocks. Hidden until focused, first tab stop on every page. */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 100;
+  padding: var(--space-2) var(--space-7);
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--md-shape-small) 0;
+  transition: top var(--md-motion-short) var(--md-motion-standard);
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
 
 /* ============================================================
    RESPONSIVE
