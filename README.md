@@ -19,12 +19,12 @@ The site is intentionally static: no CMS, no server-side processing, no dependen
 | Layer | Technology |
 |---|---|
 | Markup | Semantic HTML5 |
-| Styling | CSS3 — custom properties, no framework |
+| Styling | CSS3, custom properties, no framework |
 | Scripting | Vanilla JavaScript |
-| Hosting | GitHub Pages — custom domain via `CNAME` |
-| Contact form | [Web3Forms](https://web3forms.com) |
-| Display typeface | Cormorant Garamond (Google Fonts) |
-| Body typeface | Inter (Google Fonts) |
+| Hosting | GitHub Pages, custom domain via `CNAME` |
+| Analytics | Cloudflare Web Analytics |
+| Display typeface | Cormorant Garamond (self-hosted) |
+| Body typeface | Inter (self-hosted) |
 
 ---
 
@@ -35,20 +35,19 @@ The site is intentionally static: no CMS, no server-side processing, no dependen
 | `index.html` | Home | Hero, positioning, primary CTAs |
 | `doctrine.html` | Approach | The three foundational practices |
 | `portfolio.html` | Track Record | Career case studies and credentials |
-| `briefing.html` | Submit a Briefing | Web3Forms contact form |
+| `now.html` | Now | Current focus and activity |
 | `governance.html` | Privacy Policy | Data governance and privacy statement |
-| `insights.html` | Phronesis ↗ | Redirects to the Phronesis Substack publication |
+| `404.html` | Not Found | Custom 404 page |
 
 ---
 
 ## Stylesheets
 
-The site uses two CSS files loaded in sequence:
+The site loads three CSS files in sequence:
 
-- `style.css` — base layer: CSS custom properties, layout primitives, dark-background defaults
-- `style-v2.css` — UI uplift layer: typography, light/dark theming, component refinements
-
-`style-v2.css` takes precedence where properties overlap. The cascade is intentional.
+- `fonts.css`, self-hosted `@font-face` declarations for Cormorant Garamond and Inter
+- `tokens.css`, design tokens: colour palette, spacing scale, elevation, shape
+- `components.css`, layout primitives and component styling, built on the tokens above
 
 ---
 
@@ -66,14 +65,6 @@ The custom domain `simonives.com` is configured via the `CNAME` file in the repo
 | `dev` | Active development — raise a pull request to `main` when ready |
 
 Changes should always go through `dev` before merging to `main`. This prevents accidental deployment of incomplete work to the live site.
-
----
-
-## Contact form
-
-The briefing form on `briefing.html` is processed by [Web3Forms](https://web3forms.com). Submissions are routed to the configured email address without any server-side code on this repository. The Web3Forms access key is embedded in the form HTML — this is by design; Web3Forms keys are client-side credentials intended to be public.
-
-The `form-backend.gs` file in this repository is a legacy Google Apps Script from an earlier implementation. It is retained for reference but is not active.
 
 ---
 
