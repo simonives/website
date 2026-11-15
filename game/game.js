@@ -203,7 +203,7 @@ export function mountSkateGame(canvas, options = {}) {
     if (s.caption && s.simT > s.captionUntil) s.caption = null;
     extendObstacles(s.rider.x);
     s.cameraY += (Math.max(0, s.rider.y - 80) - s.cameraY) * 0.1;
-    audio.setSpeed(speed / 220);
+    audio.setSpeed(speed / 330);
   }
 
   function render() {

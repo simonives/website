@@ -1,7 +1,7 @@
-// The ride gets faster the longer it runs. Reduced motion holds the half-speed baseline.
+// The ride gets faster the longer it runs. Reduced motion holds the half-speed baseline (110), whatever the faster default.
 export function speedAt(t, reduced) {
   if (reduced) return 110;
-  return 220 + 200 * (1 - Math.exp(-t / 120));
+  return 330 + 300 * (1 - Math.exp(-t / 120));
 }
 
 // A bump takes 8 seconds off the ride clock, so a struggling rider gets a breather.

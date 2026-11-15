@@ -1,14 +1,16 @@
 import { height as terrainHeight } from './terrain.js';
-import { createGround, risers } from './ground.js';
-import { CHAR_W } from './obstacles.js';
+import { createGround } from './ground.js';
 
 const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 const VIEW_H = 320; // world units visible vertically
 const RIDER_X = 0.3; // rider's horizontal position as a fraction of canvas width
 const BOARD_TEXT = 'SIMON IVES';
-const BOARD_CHAR = 11; // world units per board letter
 const LINE = 3.5; // CSS px stroke weight
-const BAR_SPACING = 9; // world units between the '|' characters of a riser
+// One world unit is about 2 cm (the rider is 90 units, so about 1.8 m). Text is texture here, not copy.
+const BOARD_LEN = 44; // an 88 cm deck
+const KICK = 6; // nose and tail rise 12 cm
+const TEXT_U = 5; // glyph size of obstacle texture, in world units
+const ROW_U = 5.5; // spacing between texture rows
 
 // Distant silhouette height above the baseline, in world units.
 function silhouette(wx, amp, phase) {
@@ -119,51 +121,89 @@ export function createRenderer(canvas, opts = {}) {
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Obstacles are text: each letter sits on the ground, so ramps slope, ledges rise and stairs step.
-    // Vertical faces are columns of '|'.
-    const fontPx = Math.max(16, 12 * sc);
-    ctx.font = `bold ${fontPx}px ${FONT}`;
-    ctx.textAlign = 'center';
+    // Obstacles are blocks of tiny repeating text, clipped to the obstacle's outline, so a ledge is
+    // a slab, a ramp a wedge and stairs a staircase. The surface line is a row of letters turned to the slope.
+    const glyph = Math.max(6, TEXT_U * sc);
+    ctx.font = `bold ${glyph}px ${FONT}`;
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
+    const cw = ctx.measureText('M').width || glyph * 0.6;
     for (const o of f.obstacles) {
       if (toX(o.x + o.width) < -20 || toX(o.x) > w + 20) continue;
       ctx.fillStyle = o.lit ? P.textLit : P.text;
-      for (let i = 0; i < o.label.length; i++) {
-        const wx = o.x + (i + 0.5) * CHAR_W;
+      const x0 = Math.max(o.x, fromX(-20));
+      const x1 = Math.min(o.x + o.width, fromX(w + 20));
+      let lo = Infinity;
+      let hi = -Infinity;
+      ctx.save();
+      ctx.beginPath();
+      for (let wx = x0; ; wx = Math.min(wx + 4, x1)) {
+        const top = ground.height(wx);
+        hi = Math.max(hi, top);
+        lo = Math.min(lo, terrainHeight(wx));
+        if (wx === x0) ctx.moveTo(toX(wx), toY(top));
+        else ctx.lineTo(toX(wx), toY(top));
+        if (wx >= x1) break;
+      }
+      for (let wx = x1; ; wx = Math.max(wx - 4, x0)) {
+        ctx.lineTo(toX(wx), toY(terrainHeight(wx)));
+        if (wx <= x0) break;
+      }
+      ctx.closePath();
+      ctx.clip();
+      const unit = `${o.label} `;
+      const row = unit.repeat(Math.ceil(((x1 - x0) * sc) / (cw * unit.length)) + 2);
+      const skip = Math.floor((x0 - o.x) / (cw / sc));
+      const text = row.slice(skip % unit.length);
+      for (let y = Math.floor(lo / ROW_U) * ROW_U; y <= hi + ROW_U; y += ROW_U) ctx.fillText(text, toX(x0), toY(y));
+      ctx.restore();
+      // Surface line: each letter sits on the top edge and tilts with it.
+      ctx.textAlign = 'center';
+      for (let wx = x0 + 2; wx < x1; wx += 5) {
         ctx.save();
         ctx.translate(toX(wx), toY(ground.height(wx)));
         ctx.rotate(-Math.atan(ground.slope(wx)));
-        ctx.fillText(o.label[i], 0, 0);
+        ctx.fillText(o.label[Math.floor((wx - o.x) / 5) % o.label.length], 0, 0);
         ctx.restore();
       }
-      for (const r of risers(o)) {
-        const base = terrainHeight(r.x);
-        for (let y = r.from + BAR_SPACING; y <= r.to + 1; y += BAR_SPACING) ctx.fillText('|', toX(r.x), toY(base + y));
-      }
+      ctx.textAlign = 'left';
     }
 
-    // Board (the name) and rider.
+    // Board (the name, set along a kicked deck) and rider.
     const r = f.rider;
     const t = f.trick;
     const p = t.active === 'kickflip' || t.active === 'shoveit' ? t.progress : 0;
+    // A shove-it turns the deck about its vertical axis, so at 180 degrees the name runs backwards.
     const spread = t.active === 'shoveit' ? Math.cos(2 * Math.PI * p) : 1;
     const flipY = t.active === 'kickflip' ? Math.cos(2 * Math.PI * p) : 1;
+    const thin = (v) => (Math.abs(v) < 0.03 ? (v < 0 ? -0.03 : 0.03) : v);
     const grabbing = t.active === 'grab' || t.pending !== null;
     ctx.save();
     ctx.translate(w * RIDER_X, toY(r.y + 4));
     ctx.rotate(-r.angle);
     ctx.fillStyle = P.board;
-    ctx.font = `bold ${Math.max(16, 12 * sc)}px ${FONT}`;
+    ctx.font = `bold ${Math.max(8, 6.5 * sc)}px ${FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
+    ctx.save();
+    ctx.scale(thin(spread), thin(flipY));
+    const lift = (x) => KICK * Math.pow(Math.max(0, Math.abs(x) / (BOARD_LEN / 2) - 0.55) / 0.45, 2);
     const n = BOARD_TEXT.length;
     for (let i = 0; i < n; i++) {
+      const x = (-0.5 + (i + 0.5) / n) * BOARD_LEN;
+      const tilt = Math.atan2(lift(x + 0.5) - lift(x - 0.5), 1);
       ctx.save();
-      ctx.translate((i - (n - 1) / 2) * BOARD_CHAR * sc * spread, 0);
-      ctx.scale(1, flipY === 0 ? 0.01 : flipY);
+      ctx.translate(x * sc, -lift(x) * sc);
+      ctx.rotate(-tilt);
       ctx.fillText(BOARD_TEXT[i], 0, 0);
       ctx.restore();
     }
+    for (const wx of [-13, 13]) {
+      ctx.beginPath();
+      ctx.arc(wx * sc, 2.2 * sc, 2.2 * sc, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
     // Line-figure rider standing on the board; a grab reaches a hand down to it.
     const k = sc * 0.9;
     ctx.strokeStyle = P.rider;

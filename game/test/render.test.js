@@ -70,15 +70,41 @@ test('draws every trick pose and a raised camera', () => {
   assert.ok(c.ctx.calls.length > 40);
 });
 
-test('obstacles are drawn as letters, with a column of bars at risers', () => {
+test('an obstacle is a clipped block of small repeating text, not big letters', () => {
   const c = stubCanvas(1600, 500);
   const r = createRenderer(c, { reducedMotion: false });
   r.resize();
-  const ramp = { kind: 'ramp', id: 'x', label: 'Practical wisdom', sentence: '', x: 400, width: 224, height: 56, steps: 0, lit: false };
-  r.draw(frame({ obstacles: [ramp], cameraX: 400 }));
-  const texts = c.ctx.calls.filter((x) => x[0] === 'fillText').map((x) => x[1]);
-  assert.equal(texts.filter((t) => t === '|').length, 6, 'one bar every 9 units up a 56 unit lip');
-  assert.ok(texts.includes('P'));
+  const ledge = { kind: 'ledge', id: 'x', label: 'Practical wisdom', sentence: '', x: 400, width: 224, height: 30, steps: 0, lit: false };
+  r.draw(frame({ obstacles: [ledge], cameraX: 400 }));
+  const calls = c.ctx.calls;
+  assert.ok(calls.some((x) => x[0] === 'clip'), 'texture is clipped to the obstacle shape');
+  const rows = calls.filter((x) => x[0] === 'fillText' && x[1].includes('Practical wisdom'));
+  assert.ok(rows.length >= 3, 'several rows of the label fill the body');
+  assert.ok(rows.some((x) => x[1].split('Practical wisdom').length > 3), 'a row repeats the label to fill the width');
+});
+
+test('the board is ten letters set along a kicked deck, each turned to the curve', () => {
+  const c = stubCanvas(800, 400);
+  const r = createRenderer(c, { reducedMotion: false });
+  r.resize();
+  r.draw(frame({ obstacles: [] }));
+  const calls = c.ctx.calls;
+  const letters = calls.filter((x) => x[0] === 'fillText' && x[1].length === 1 && 'SIMONVE '.includes(x[1])).map((x) => x[1]).join('');
+  assert.ok(letters.includes('SIMON IVES'));
+  const turns = calls.filter((x) => x[0] === 'rotate').map((x) => Math.round(x[1] * 100));
+  assert.ok(new Set(turns).size >= 3, 'letters at the kicks tilt differently from the flat middle');
+});
+
+test('a shove-it mirrors the board at 180 degrees and restores it at 360', () => {
+  const sx = (progress) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles: [], trick: { ...createTrickState(), active: 'shoveit', progress } }));
+    return c.ctx.calls.filter((x) => x[0] === 'scale').map((x) => x[1]);
+  };
+  assert.ok(sx(0.5).some((v) => v < -0.9), 'half way round the text runs backwards');
+  assert.ok(!sx(0.01).some((v) => v < 0), 'start is unmirrored');
 });
 
 test('draws in reduced-motion mode', () => {

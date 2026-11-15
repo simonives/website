@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { speedAt, windBack, advanceClock } from '../lib/difficulty.js';
 
-test('speed starts at 220 and rises strictly', () => {
-  assert.equal(speedAt(0, false), 220);
+test('speed starts at 330 (50% above the old 220) and rises strictly', () => {
+  assert.equal(speedAt(0, false), 330);
   let prev = 0;
   for (const t of [0, 60, 120, 300]) {
     const v = speedAt(t, false);
@@ -12,9 +12,9 @@ test('speed starts at 220 and rises strictly', () => {
   }
 });
 
-test('speed at two minutes is about 346 and stays under 420 for a 30 minute ride', () => {
-  assert.ok(Math.abs(speedAt(120, false) - 346.4) < 1);
-  assert.ok(speedAt(1800, false) < 420);
+test('speed at two minutes is about 520 and stays under 630 for a 30 minute ride', () => {
+  assert.ok(Math.abs(speedAt(120, false) - 519.6) < 1);
+  assert.ok(speedAt(1800, false) < 630);
 });
 
 test('reduced motion holds 110 whatever the time', () => {
