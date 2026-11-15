@@ -2,7 +2,7 @@ import { height, slope } from './terrain.js';
 
 // Units are world units and seconds. Up is positive.
 export const GRAVITY = 900;
-export const JUMP_SPEED = 260;
+export const JUMP_SPEED = 380; // air time about 0.84 s, long enough to finish a 0.6 s trick
 export const HOLD_BOOST = 300; // extra upward acceleration while Space stays held
 export const HOLD_CAP = 0.25; // seconds of boost allowed per ollie
 const ANGLE_EASE = 6; // per second, air angle eases toward the terrain angle
