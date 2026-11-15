@@ -26,7 +26,7 @@ canvas#skate, .skate-canvas {
   height: 60vh;
   min-height: 280px;
   background: var(--bg);
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   -webkit-tap-highlight-color: transparent;
 }
 canvas#skate:focus-visible, .skate-canvas:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }

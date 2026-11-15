@@ -94,8 +94,13 @@ export function mountSkateGame(canvas, options = {}) {
 
   function refresh() {
     loop = createLoop();
-    if (running()) schedule();
-    else render();
+    if (running()) {
+      audio.resume();
+      schedule();
+    } else {
+      audio.suspend();
+      render();
+    }
   }
 
   async function toggleSound() {

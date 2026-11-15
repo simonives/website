@@ -30,13 +30,21 @@ export function createAudio() {
     o.stop(t + dur);
   }
 
-  async function enable() {
-    if (on) return true;
+  let pending = null;
+  let generation = 0;
+
+  async function build(token) {
+    let c = null;
     try {
       const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
       if (!Ctor) return false;
-      ctx = new Ctor();
-      await ctx.resume();
+      c = new Ctor();
+      await c.resume();
+      if (token !== generation) {
+        c.close();
+        return false;
+      }
+      ctx = c;
       master = ctx.createGain();
       master.gain.value = MASTER;
       master.connect(ctx.destination);
@@ -54,13 +62,28 @@ export function createAudio() {
       return true;
     } catch {
       on = false;
+      ctx = null;
+      if (c) {
+        try { c.close(); } catch { /* already closed */ }
+      }
       return false;
     }
   }
 
+  // Repeat callers share the in-flight attempt, so one context exists at most.
+  function enable() {
+    if (on) return Promise.resolve(true);
+    if (!pending) {
+      const token = generation;
+      pending = build(token).finally(() => { pending = null; });
+    }
+    return pending;
+  }
+
   function disable() {
-    if (!ctx) return;
+    generation++;
     on = false;
+    if (!ctx) return;
     try { ctx.close(); } catch { /* already closed */ }
     ctx = null;
   }
@@ -69,6 +92,8 @@ export function createAudio() {
     enable,
     disable,
     isOn: () => on,
+    suspend() { if (on && ctx) ctx.suspend(); },
+    resume() { if (on && ctx) ctx.resume(); },
     setSpeed(v) {
       if (!on) return;
       rumbleFilter.frequency.value = 150 + 250 * v;
