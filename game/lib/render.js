@@ -186,7 +186,7 @@ export function createRenderer(canvas, opts = {}) {
     }
     if (f.paused) {
       ctx.font = `20px ${FONT}`;
-      plate(['Press Space to ride', 'or tap the screen'], P, 20, h * 0.3);
+      plate(['Press Space to ride', 'or tap the screen'], P, 20, h * 0.1);
     }
   }
 

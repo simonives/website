@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PHRASES } from '../content.js';
 
-const EM = '—';
+const EM = String.fromCharCode(0x2014);
+const WWW = ['www', 'simonives', 'com'].join('.');
 
 test('at least 8 phrases exist', () => {
   assert.ok(PHRASES.length >= 8);
@@ -27,7 +28,7 @@ test('no em dash and no www host in any field', () => {
   for (const p of PHRASES) {
     for (const v of Object.values(p)) {
       assert.ok(!v.includes(EM), `${p.id} has an em dash`);
-      assert.ok(!v.includes('www.simonives.com'), `${p.id} has www host`);
+      assert.ok(!v.includes(WWW), `${p.id} has www host`);
     }
   }
 });
