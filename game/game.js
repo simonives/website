@@ -1,9 +1,10 @@
 import { PHRASES } from './content.js';
-import { createRider, stepRider, JUMP_SPEED } from './lib/physics.js';
-import { createTrickState, startTrick, stepTrick, judgeLanding } from './lib/tricks.js';
-import { height, slope } from './lib/terrain.js';
-import { placeObstacles, resolveContact, lightNearest, OBSTACLE_H } from './lib/obstacles.js';
-import { phaseAt, FLAT_PHASE } from './lib/palette.js';
+import { createRider, stepRider } from './lib/physics.js';
+import { createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
+import { createGround } from './lib/ground.js';
+import { placeObstacles, lightNearest } from './lib/obstacles.js';
+import { PHASES, mixAt } from './lib/palette.js';
+import { speedAt, advanceClock } from './lib/difficulty.js';
 import { createLoop } from './lib/loop.js';
 import { createRenderer } from './lib/render.js';
 import { attachInput } from './lib/input.js';
@@ -12,9 +13,9 @@ import { createAudio } from './lib/audio.js';
 import { autoInput } from './lib/auto.js';
 
 const STEP = 1 / 60;
-const BASE_SPEED = 220;
-const BUMP_SPEED = 260;
 const CAPTION_SECONDS = 5;
+const SLOW = 0.6; // speed factor after a bump
+const SLOW_SECONDS = 0.6;
 
 export function mountSkateGame(canvas, options = {}) {
   const phrases = options.phrases || PHRASES;
@@ -28,21 +29,25 @@ export function mountSkateGame(canvas, options = {}) {
   canvas.setAttribute('tabindex', '0');
   canvas.setAttribute('role', 'application');
   canvas.setAttribute('aria-roledescription', 'game');
-  canvas.setAttribute('aria-label', 'Skateboard game. Space or Up Arrow to ollie. Left Arrow or Z for a kickflip, Right Arrow or X for a shove-it. P pauses, M toggles sound. There is no way to fail.');
+  canvas.setAttribute('aria-label', 'Skateboard game. Press Space or Up Arrow to ollie. Press again in the air to flip, hold the second press to grab, press a third time to spin. Left Arrow or Z flips, Right Arrow or X spins, Down Arrow or C grabs. P pauses, M toggles sound. There is no way to fail.');
 
   const s = {
     rider: createRider(),
     trick: createTrickState(),
     obstacles: [],
+    ground: createGround([]),
     genTo: 0,
     simT: 0,
+    rideT: 0, // difficulty clock, seconds of riding
     caption: null,
     captionUntil: 0,
-    grinding: null,
-    bumped: null,
     slowUntil: 0,
     ollie: false,
     auto: false,
+    phaseIdx: 0,
+    prevIdx: 0,
+    phaseStart: -1,
+    cameraY: 0,
   };
   const why = { user: !!opts.reducedMotion, hidden: false, offscreen: false };
   let loop = createLoop();
@@ -69,10 +74,17 @@ export function mountSkateGame(canvas, options = {}) {
     s.auto = !s.auto;
     autoBtn.setAttribute('aria-pressed', String(s.auto));
   }, false);
-  const kickBtn = button('Kickflip', () => doTrick('kickflip'));
-  const shoveBtn = button('Shove-it', () => doTrick('shoveit'));
-  kickBtn.hidden = true;
-  shoveBtn.hidden = true;
+  button('Flip', () => doTrick('kickflip'));
+  const grabBtn = button('Grab', (e) => {
+    // A keyboard activation has no press and release, so it grabs for a moment.
+    if (e.detail === 0) {
+      doTrick('grab');
+      setTimeout(releaseGrab, 450);
+    }
+  });
+  button('Spin', () => doTrick('shoveit'));
+  grabBtn.addEventListener('pointerdown', () => doTrick('grab'));
+  for (const t of ['pointerup', 'pointercancel', 'pointerleave']) grabBtn.addEventListener(t, releaseGrab);
   canvas.after(controls);
 
   function syncButtons() {
@@ -81,6 +93,7 @@ export function mountSkateGame(canvas, options = {}) {
 
   // ----- helpers -----
   const running = () => !why.user && !why.hidden && !why.offscreen;
+  const airborne = () => !s.rider.grounded;
 
   function schedule() {
     if (!raf && !destroyed) raf = requestAnimationFrame(tick);
@@ -116,18 +129,41 @@ export function mountSkateGame(canvas, options = {}) {
 
   function doTrick(kind) {
     if (!running()) return;
-    s.trick = startTrick(s.trick, kind, !s.rider.grounded && !s.grinding);
+    s.trick = startTrick(s.trick, kind, airborne());
+  }
+
+  function releaseGrab() {
+    s.trick = endGrab(s.trick);
+  }
+
+  function control(down) {
+    if (down && !running() && why.user) setUserPaused(false);
+    s.ollie = down;
+    if (!running()) return;
+    s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick);
+  }
+
+  function rebuildGround() {
+    s.ground = createGround(s.obstacles);
+  }
+
+  function extendObstacles(x) {
+    if (x + 3000 <= s.genTo) return;
+    s.obstacles.push(...placeObstacles(phrases, s.genTo, x + 6000, { flat: opts.reducedMotion }));
+    s.genTo = x + 6000;
+    s.obstacles = s.obstacles.filter((o) => o.x + o.width > x - 800);
+    rebuildGround();
   }
 
   function landed(angle) {
-    const j = judgeLanding(s.trick, angle, Math.atan(slope(s.rider.x)));
+    const j = judgeLanding(s.trick, angle, Math.atan(s.ground.slope(s.rider.x)));
     s.trick = j.trickState;
     audio.land();
     if (!j.clean) return;
     if (options.onTrick) options.onTrick({ trick: j.trick, streak: s.trick.streak });
     const ob = lightNearest(s.obstacles, s.rider.x);
     if (!ob) {
-      a11y.announce(`Clean ${j.trick === 'kickflip' ? 'kickflip' : 'shove-it'}.`);
+      if (!s.auto) a11y.announce(`Clean ${j.trick === 'kickflip' ? 'flip' : j.trick === 'shoveit' ? 'spin' : 'grab'}.`);
       return;
     }
     s.caption = ob.sentence;
@@ -140,50 +176,34 @@ export function mountSkateGame(canvas, options = {}) {
 
   function step() {
     s.simT += STEP;
+    const speed = speedAt(s.rideT, opts.reducedMotion) * (s.simT < s.slowUntil ? SLOW : 1);
     let ollieDown = s.ollie;
     if (s.auto) {
-      const a = autoInput({ rider: s.rider, obstacles: s.obstacles });
+      const a = autoInput({ rider: s.rider, obstacles: s.obstacles, speed });
       ollieDown = a.ollieDown;
-      if (a.trick) s.trick = startTrick(s.trick, a.trick, !s.rider.grounded && !s.grinding);
+      if (a.trick && !s.trick.attempted) s.trick = startTrick(s.trick, a.trick, airborne());
     }
     const wasGrounded = s.rider.grounded;
     const prevAngle = s.rider.angle;
-    if (s.grinding && ollieDown && !s.rider.ollieHeld) {
-      s.rider = { ...s.rider, vy: JUMP_SPEED, ollieHeld: true, holdTime: 0 };
-      s.grinding = null;
+    s.rider = stepRider(s.rider, { ollieDown }, STEP, speed, s.ground);
+    if (s.rider.ollied) {
+      s.prevIdx = s.phaseIdx;
+      s.phaseIdx = (s.phaseIdx + 1) % PHASES.length;
+      s.phaseStart = s.simT;
       audio.pop();
     }
-    const speed = BASE_SPEED * (opts.reducedMotion ? 0.5 : 1) * (s.simT < s.slowUntil ? 0.6 : 1);
-    s.rider = stepRider(s.rider, { ollieDown }, STEP, speed);
-    if (wasGrounded && !s.rider.grounded) audio.pop();
-    s.trick = stepTrick(s.trick, STEP);
-
-    const x = s.rider.x;
-    const ob = s.obstacles.find((o) => x >= o.x && x <= o.x + o.width);
-    if (s.grinding) {
-      if (ob !== s.grinding) s.grinding = null;
-      else s.rider = { ...s.rider, y: height(x) + OBSTACLE_H, vy: 0, grounded: false };
-    } else if (ob && ob !== s.bumped) {
-      const c = resolveContact(s.rider, ob);
-      if (c === 'grind') {
-        s.grinding = ob;
-        s.rider = { ...s.rider, y: height(x) + OBSTACLE_H, vy: 0, grounded: false };
-        landed(prevAngle);
-      } else if (c === 'bump') {
-        s.bumped = ob;
-        s.rider = { ...s.rider, vy: BUMP_SPEED, grounded: false };
-        s.slowUntil = s.simT + 0.6;
-      }
+    const hit = s.rider.hit === 'wall';
+    if (hit) {
+      s.slowUntil = s.simT + SLOW_SECONDS;
+      audio.land();
     }
+    s.rideT = advanceClock(s.rideT, STEP, true, hit);
+    s.trick = stepTrick(s.trick, STEP);
     if (!wasGrounded && s.rider.grounded) landed(prevAngle);
     if (s.caption && s.simT > s.captionUntil) s.caption = null;
-
-    if (x + 3000 > s.genTo) {
-      s.obstacles.push(...placeObstacles(phrases, s.genTo, x + 6000));
-      s.genTo = x + 6000;
-      s.obstacles = s.obstacles.filter((o) => o.x + o.width > x - 800);
-    }
-    audio.setSpeed(speed / BASE_SPEED);
+    extendObstacles(s.rider.x);
+    s.cameraY += (Math.max(0, s.rider.y - 80) - s.cameraY) * 0.1;
+    audio.setSpeed(speed / 220);
   }
 
   function render() {
@@ -191,8 +211,9 @@ export function mountSkateGame(canvas, options = {}) {
       rider: s.rider,
       trick: s.trick,
       obstacles: s.obstacles,
-      phase: opts.reducedMotion ? { from: FLAT_PHASE, to: FLAT_PHASE, mix: 0 } : phaseAt(s.simT),
+      phase: { from: PHASES[s.prevIdx], to: PHASES[s.phaseIdx], mix: mixAt(s.simT - s.phaseStart, opts.reducedMotion) },
       cameraX: s.rider.x,
+      cameraY: s.cameraY,
       caption: s.caption,
       paused: !running(),
     });
@@ -208,20 +229,13 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   // ----- wiring -----
-  s.obstacles = placeObstacles(phrases, 0, 6000);
-  s.genTo = 6000;
+  extendObstacles(0);
   const detachInput = attachInput(canvas, {
-    ollie(down) {
-      if (down && !running() && why.user) setUserPaused(false);
-      s.ollie = down;
-    },
+    control,
     trick: doTrick,
+    trickEnd: releaseGrab,
     pause: () => setUserPaused(!why.user),
     mute: toggleSound,
-    touchSeen() {
-      kickBtn.hidden = false;
-      shoveBtn.hidden = false;
-    },
   });
 
   const onVisibility = () => { why.hidden = document.hidden; refresh(); };
@@ -235,6 +249,12 @@ export function mountSkateGame(canvas, options = {}) {
   const onMotion = (e) => {
     opts.reducedMotion = e.matches;
     if (e.matches) why.user = true;
+    // Re-lay the obstacles ahead of the rider with the new difficulty setting.
+    const keep = s.obstacles.filter((o) => o.x <= s.rider.x + 600);
+    const last = keep[keep.length - 1];
+    s.obstacles = keep;
+    s.genTo = Math.max(s.rider.x + 600, last ? last.x + last.width + 300 : 0);
+    extendObstacles(s.rider.x + 3000);
     syncButtons();
     refresh();
   };
