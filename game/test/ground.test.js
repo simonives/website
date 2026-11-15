@@ -57,3 +57,22 @@ test('ground over a ledge is terrain plus its height, and slope over a ramp adds
   assert.ok(Math.abs(g.height(500) - height(500)) < 1e-9);
   assert.ok(Math.abs(g.slope(3100) - (slope(3100) + 0.25)) < 1e-9);
 });
+
+import { risers } from '../lib/ground.js';
+
+test('risers: a ramp has one at its lip', () => {
+  assert.deepEqual(risers(ramp), [{ x: 1200, from: 0, to: 50 }]);
+});
+
+test('risers: a ledge has a front and a back', () => {
+  assert.deepEqual(risers(ledge), [{ x: 1000, from: 0, to: 20 }, { x: 1200, from: 0, to: 20 }]);
+});
+
+test('risers: stairs have a front, a platform edge, and one per tread boundary', () => {
+  const r = risers(stairs);
+  assert.equal(r.length, stairs.steps + 2);
+  assert.deepEqual(r[0], { x: 1000, from: 0, to: 40 });
+  assert.ok(Math.abs(r.at(-1).x - 1400) < 1e-9);
+  assert.ok(Math.abs(r.at(-1).to - 8) < 1e-9);
+  for (const k of r) assert.ok(k.to > k.from);
+});

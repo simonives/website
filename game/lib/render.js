@@ -1,5 +1,6 @@
-import { height, slope } from './terrain.js';
-import { OBSTACLE_H, CHAR_W } from './obstacles.js';
+import { height as terrainHeight } from './terrain.js';
+import { createGround, risers } from './ground.js';
+import { CHAR_W } from './obstacles.js';
 
 const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 const VIEW_H = 320; // world units visible vertically
@@ -7,6 +8,7 @@ const RIDER_X = 0.3; // rider's horizontal position as a fraction of canvas widt
 const BOARD_TEXT = 'SIMON IVES';
 const BOARD_CHAR = 11; // world units per board letter
 const LINE = 3.5; // CSS px stroke weight
+const BAR_SPACING = 9; // world units between the '|' characters of a riser
 
 // Distant silhouette height above the baseline, in world units.
 function silhouette(wx, amp, phase) {
@@ -63,11 +65,14 @@ export function createRenderer(canvas, opts = {}) {
     const sc = h / VIEW_H;
     const baseY = h * 0.7;
     const camX = f.cameraX;
+    const camY = f.cameraY || 0;
     const P = f.phase.from;
+    const ground = createGround(f.obstacles);
     const toX = (wx, parallax = 1) => (wx - camX * parallax) * sc + w * RIDER_X;
+    const toY = (wy, parallax = 1) => baseY - (wy - camY * parallax) * sc;
     const fromX = (sx, parallax = 1) => (sx - w * RIDER_X) / sc + camX * parallax;
 
-    // Sky: stepped bands, flipping one at a time to the next phase during a transition.
+    // Sky: stepped bands, flipping one at a time to the next palette during a colour change.
     const flipped = Math.round(f.phase.mix * 4);
     const bandH = baseY / 4;
     for (let i = 0; i < 4; i++) {
@@ -75,36 +80,37 @@ export function createRenderer(canvas, opts = {}) {
       ctx.fillRect(0, i * bandH, w, bandH + 1);
     }
 
-    // Parallax silhouettes (one band under reduced motion).
+    // Parallax silhouettes (one band under reduced motion). Their colours also follow the colour change.
+    const T = f.phase.mix >= 0.5 ? f.phase.to : P;
     const layers = opts.reducedMotion
-      ? [{ par: 0.4, off: 40, amp: 30, ph: 1, c: P.hills }]
+      ? [{ par: 0.4, off: 40, amp: 30, ph: 1, c: T.hills }]
       : [
-          { par: 0.15, off: 90, amp: 40, ph: 0, c: P.ridge },
-          { par: 0.4, off: 40, amp: 30, ph: 1, c: P.hills },
+          { par: 0.15, off: 90, amp: 40, ph: 0, c: T.ridge },
+          { par: 0.4, off: 40, amp: 30, ph: 1, c: T.hills },
         ];
     for (const L of layers) {
       ctx.fillStyle = L.c;
       ctx.beginPath();
       ctx.moveTo(0, h);
       for (let sx = 0; sx <= w + 8; sx += 8) {
-        ctx.lineTo(sx, baseY - (L.off + silhouette(fromX(sx, L.par), L.amp, L.ph)) * sc);
+        ctx.lineTo(sx, toY(L.off + silhouette(fromX(sx, L.par), L.amp, L.ph), 0.3));
       }
       ctx.lineTo(w, h);
       ctx.closePath();
       ctx.fill();
     }
 
-    // Ground fill and line.
+    // Ground fill and line (terrain plus obstacle offsets).
     ctx.beginPath();
     ctx.moveTo(0, h);
-    for (let sx = 0; sx <= w + 6; sx += 6) ctx.lineTo(sx, baseY - height(fromX(sx)) * sc);
+    for (let sx = 0; sx <= w + 4; sx += 4) ctx.lineTo(sx, toY(ground.height(fromX(sx))));
     ctx.lineTo(w, h);
     ctx.closePath();
-    ctx.fillStyle = P.ground;
+    ctx.fillStyle = T.ground;
     ctx.fill();
     ctx.beginPath();
-    for (let sx = 0; sx <= w + 6; sx += 6) {
-      const y = baseY - height(fromX(sx)) * sc;
+    for (let sx = 0; sx <= w + 4; sx += 4) {
+      const y = toY(ground.height(fromX(sx)));
       if (sx === 0) ctx.moveTo(sx, y);
       else ctx.lineTo(sx, y);
     }
@@ -113,7 +119,8 @@ export function createRenderer(canvas, opts = {}) {
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Phrase obstacles: each letter sits on a ledge that follows the terrain.
+    // Obstacles are text: each letter sits on the ground, so ramps slope, ledges rise and stairs step.
+    // Vertical faces are columns of '|'.
     const fontPx = Math.max(16, 12 * sc);
     ctx.font = `bold ${fontPx}px ${FONT}`;
     ctx.textAlign = 'center';
@@ -124,21 +131,26 @@ export function createRenderer(canvas, opts = {}) {
       for (let i = 0; i < o.label.length; i++) {
         const wx = o.x + (i + 0.5) * CHAR_W;
         ctx.save();
-        ctx.translate(toX(wx), baseY - (height(wx) + OBSTACLE_H) * sc);
-        ctx.rotate(-Math.atan(slope(wx)));
+        ctx.translate(toX(wx), toY(ground.height(wx)));
+        ctx.rotate(-Math.atan(ground.slope(wx)));
         ctx.fillText(o.label[i], 0, 0);
         ctx.restore();
+      }
+      for (const r of risers(o)) {
+        const base = terrainHeight(r.x);
+        for (let y = r.from + BAR_SPACING; y <= r.to + 1; y += BAR_SPACING) ctx.fillText('|', toX(r.x), toY(base + y));
       }
     }
 
     // Board (the name) and rider.
     const r = f.rider;
     const t = f.trick;
-    const p = t.active ? t.progress : 0;
+    const p = t.active === 'kickflip' || t.active === 'shoveit' ? t.progress : 0;
     const spread = t.active === 'shoveit' ? Math.cos(2 * Math.PI * p) : 1;
     const flipY = t.active === 'kickflip' ? Math.cos(2 * Math.PI * p) : 1;
+    const grabbing = t.active === 'grab' || t.pending !== null;
     ctx.save();
-    ctx.translate(w * RIDER_X, baseY - (r.y + 4) * sc);
+    ctx.translate(w * RIDER_X, toY(r.y + 4));
     ctx.rotate(-r.angle);
     ctx.fillStyle = P.board;
     ctx.font = `bold ${Math.max(16, 12 * sc)}px ${FONT}`;
@@ -152,7 +164,7 @@ export function createRenderer(canvas, opts = {}) {
       ctx.fillText(BOARD_TEXT[i], 0, 0);
       ctx.restore();
     }
-    // Line-figure rider standing on the board.
+    // Line-figure rider standing on the board; a grab reaches a hand down to it.
     const k = sc * 0.9;
     ctx.strokeStyle = P.rider;
     ctx.lineWidth = LINE;
@@ -161,8 +173,10 @@ export function createRenderer(canvas, opts = {}) {
     ctx.moveTo(-10 * k, -16 * k); ctx.lineTo(-8 * k, -30 * k); ctx.lineTo(0, -46 * k);
     ctx.moveTo(10 * k, -16 * k); ctx.lineTo(8 * k, -30 * k); ctx.lineTo(0, -46 * k);
     ctx.lineTo(1 * k, -74 * k);
-    ctx.moveTo(1 * k, -70 * k); ctx.lineTo(-14 * k, -60 * k);
     ctx.moveTo(1 * k, -70 * k); ctx.lineTo(16 * k, -62 * k);
+    ctx.moveTo(1 * k, -70 * k);
+    if (grabbing) ctx.lineTo(-12 * k, -22 * k);
+    else ctx.lineTo(-14 * k, -60 * k);
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(2 * k, -84 * k, 6 * k, 0, Math.PI * 2);

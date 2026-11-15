@@ -47,3 +47,15 @@ export function createGround(obstacles) {
     },
   };
 }
+
+// Vertical faces of an obstacle, as { x, from, to } with heights relative to the terrain, for drawing.
+export function risers(ob) {
+  if (ob.kind === 'ramp') return [{ x: ob.x + ob.width, from: 0, to: ob.height }];
+  if (ob.kind === 'ledge') return [{ x: ob.x, from: 0, to: ob.height }, { x: ob.x + ob.width, from: 0, to: ob.height }];
+  const platformW = PLATFORM * ob.width;
+  const stepW = (ob.width - platformW) / ob.steps;
+  const level = (i) => (i > ob.steps ? 0 : (ob.height * (ob.steps + 1 - i)) / (ob.steps + 1));
+  const out = [{ x: ob.x, from: 0, to: ob.height }];
+  for (let j = 0; j <= ob.steps; j++) out.push({ x: ob.x + platformW + j * stepW, from: level(j + 1), to: level(j) });
+  return out;
+}

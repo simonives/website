@@ -1,5 +1,4 @@
 export const CHAR_W = 14; // world units per label character
-export const OBSTACLE_H = 14; // temporary: removed when the renderer is rewritten (Task 6)
 const START = 800;
 const LOOKAHEAD = 600;
 
