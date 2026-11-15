@@ -1,0 +1,63 @@
+:root {
+  --bg: #12082a;
+  --fg: #f4efe6;
+  --focus: #ffd23f;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -80px;
+  padding: 12px 16px;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: bold;
+  z-index: 10;
+}
+.skip-link:focus { top: 8px; outline: 3px solid var(--focus); outline-offset: 2px; }
+canvas#skate, .skate-canvas {
+  display: block;
+  width: 100%;
+  height: 60vh;
+  min-height: 280px;
+  background: var(--bg);
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+canvas#skate:focus-visible, .skate-canvas:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.skate-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.skate-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 16px;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 2px solid var(--fg);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.skate-controls button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.skate-controls button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.skate-controls button[hidden] { display: none; }
+.skate-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
