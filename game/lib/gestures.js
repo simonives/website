@@ -1,17 +1,13 @@
-// Pure input classification. DOM wiring lives in input.js.
-export function classifySwipe(dx, dy, dtMs) {
-  if (Math.hypot(dx, dy) < 12 && dtMs < 300) return 'tap';
-  if (Math.abs(dx) > 40 && Math.abs(dx) > 1.5 * Math.abs(dy)) return dx < 0 ? 'left' : 'right';
-  return 'scroll';
-}
-
+// Pure key mapping. Pointer handling lives in input.js.
 const KEYS = {
-  Space: 'ollie',
-  ArrowUp: 'ollie',
+  Space: 'control',
+  ArrowUp: 'control',
   ArrowLeft: 'kickflip',
   KeyZ: 'kickflip',
   ArrowRight: 'shoveit',
   KeyX: 'shoveit',
+  ArrowDown: 'grab',
+  KeyC: 'grab',
   KeyP: 'pause',
   KeyM: 'mute',
 };
