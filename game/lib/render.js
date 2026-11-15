@@ -153,13 +153,14 @@ export function createRenderer(canvas, opts = {}) {
       ctx.clip();
       const unit = `${o.label} `;
       const row = unit.repeat(Math.ceil(((x1 - x0) * sc) / (cw * unit.length)) + 2);
-      const skip = Math.floor((x0 - o.x) / (cw / sc));
+      const cwW = cw / sc;
+      const skip = Math.floor((x0 - o.x) / cwW);
       const text = row.slice(skip % unit.length);
-      for (let y = Math.floor(lo / ROW_U) * ROW_U; y <= hi + ROW_U; y += ROW_U) ctx.fillText(text, toX(x0), toY(y));
+      for (let y = Math.floor(lo / ROW_U) * ROW_U; y <= hi + ROW_U; y += ROW_U) ctx.fillText(text, toX(o.x + skip * cwW), toY(y));
       ctx.restore();
       // Surface line: each letter sits on the top edge and tilts with it.
       ctx.textAlign = 'center';
-      for (let wx = x0 + 2; wx < x1; wx += 5) {
+      for (let wx = o.x + 2 + 5 * Math.ceil((x0 - o.x - 2) / 5); wx < x1; wx += 5) {
         ctx.save();
         ctx.translate(toX(wx), toY(ground.height(wx)));
         ctx.rotate(-Math.atan(ground.slope(wx)));

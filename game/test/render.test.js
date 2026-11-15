@@ -83,6 +83,23 @@ test('an obstacle is a clipped block of small repeating text, not big letters', 
   assert.ok(rows.some((x) => x[1].split('Practical wisdom').length > 3), 'a row repeats the label to fill the width');
 });
 
+test('obstacle text scrolls with the world when the obstacle is cut off at the left edge', () => {
+  const ledge = { kind: 'ledge', id: 'x', label: 'Practical wisdom', sentence: '', x: 400, width: 600, height: 30, steps: 0, lit: false };
+  const w = 800;
+  const sc = 400 / 320;
+  const cwW = 8 / sc;
+  for (const cameraX of [900, 901.3, 905.7, 913]) {
+    const c = stubCanvas(w, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles: [ledge], cameraX }));
+    const row = c.ctx.calls.find((x) => x[0] === 'fillText' && x[1].includes('Practical wisdom'));
+    const world = (row[2] - w * 0.3) / sc + cameraX;
+    const cells = (world - ledge.x) / cwW;
+    assert.ok(Math.abs(cells - Math.round(cells)) < 1e-6, `row starts on the world character grid at camera ${cameraX}`);
+  }
+});
+
 test('the board is ten letters set along a kicked deck, each turned to the curve', () => {
   const c = stubCanvas(800, 400);
   const r = createRenderer(c, { reducedMotion: false });

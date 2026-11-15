@@ -2,7 +2,9 @@ import { PHRASES } from './content.js';
 import { createRider, stepRider } from './lib/physics.js';
 import { createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
 import { createGround } from './lib/ground.js';
-import { placeObstacles, lightNearest } from './lib/obstacles.js';
+import { lightNearest } from './lib/obstacles.js';
+import { extend, relay } from './lib/feed.js';
+import { createPressLatch } from './lib/press.js';
 import { PHASES, mixAt } from './lib/palette.js';
 import { speedAt, advanceClock } from './lib/difficulty.js';
 import { createLoop } from './lib/loop.js';
@@ -42,7 +44,7 @@ export function mountSkateGame(canvas, options = {}) {
     caption: null,
     captionUntil: 0,
     slowUntil: 0,
-    ollie: false,
+    press: createPressLatch(),
     auto: false,
     phaseIdx: 0,
     prevIdx: 0,
@@ -138,7 +140,8 @@ export function mountSkateGame(canvas, options = {}) {
 
   function control(down) {
     if (down && !running() && why.user) setUserPaused(false);
-    s.ollie = down;
+    if (down) s.press.press();
+    else s.press.release();
     if (!running()) return;
     s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick);
   }
@@ -148,10 +151,10 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   function extendObstacles(x) {
-    if (x + 3000 <= s.genTo) return;
-    s.obstacles.push(...placeObstacles(phrases, s.genTo, x + 6000, { flat: opts.reducedMotion }));
-    s.genTo = x + 6000;
-    s.obstacles = s.obstacles.filter((o) => o.x + o.width > x - 800);
+    const n = extend({ obstacles: s.obstacles, genTo: s.genTo }, x, phrases, opts.reducedMotion);
+    if (n.obstacles === s.obstacles && n.genTo === s.genTo) return;
+    s.obstacles = n.obstacles;
+    s.genTo = n.genTo;
     rebuildGround();
   }
 
@@ -177,7 +180,7 @@ export function mountSkateGame(canvas, options = {}) {
   function step() {
     s.simT += STEP;
     const speed = speedAt(s.rideT, opts.reducedMotion) * (s.simT < s.slowUntil ? SLOW : 1);
-    let ollieDown = s.ollie;
+    let ollieDown = s.press.take();
     if (s.auto) {
       const a = autoInput({ rider: s.rider, obstacles: s.obstacles, speed });
       ollieDown = a.ollieDown;
@@ -250,11 +253,10 @@ export function mountSkateGame(canvas, options = {}) {
     opts.reducedMotion = e.matches;
     if (e.matches) why.user = true;
     // Re-lay the obstacles ahead of the rider with the new difficulty setting.
-    const keep = s.obstacles.filter((o) => o.x <= s.rider.x + 600);
-    const last = keep[keep.length - 1];
-    s.obstacles = keep;
-    s.genTo = Math.max(s.rider.x + 600, last ? last.x + last.width + 300 : 0);
-    extendObstacles(s.rider.x + 3000);
+    const n = relay({ obstacles: s.obstacles, genTo: s.genTo }, s.rider.x, phrases, opts.reducedMotion);
+    s.obstacles = n.obstacles;
+    s.genTo = n.genTo;
+    rebuildGround();
     syncButtons();
     refresh();
   };
