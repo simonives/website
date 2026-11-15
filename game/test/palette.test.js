@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { contrast, PHASES, FLAT_PHASE, phaseAt } from '../lib/palette.js';
+import { contrast, luminance, PHASES, FLAT_PHASE, mixAt } from '../lib/palette.js';
 
 test('contrast of black on white is 21', () => {
   assert.ok(Math.abs(contrast('#000000', '#ffffff') - 21) < 1e-9);
@@ -32,26 +32,33 @@ test('board and rider meet 3:1 on every background of every phase', () => {
   }
 });
 
-test('phases have 4 sky bands and 4 phases exist', () => {
-  assert.equal(PHASES.length, 4);
+test('six phases with four sky bands each, and distinct names', () => {
+  assert.equal(PHASES.length, 6);
   for (const p of all) assert.equal(p.skyBands.length, 4);
+  assert.equal(new Set(PHASES.map((p) => p.name)).size, 6);
 });
 
-test('cycle returns to the start after 180 s', () => {
-  assert.equal(phaseAt(0).from, phaseAt(180).from);
-  assert.equal(phaseAt(0).mix, phaseAt(180).mix);
-});
-
-test('mix is stepped in quarters', () => {
-  for (let t = 0; t < 360; t += 0.25) {
-    const m = phaseAt(t).mix;
-    assert.ok([0, 0.25, 0.5, 0.75, 1].includes(m), `mix ${m} at ${t}`);
+test('no two palettes differ by 0.1 relative luminance in any layer (stays under the flash threshold)', () => {
+  const layers = (p) => [...p.skyBands, p.ridge, p.hills, p.ground];
+  for (const a of PHASES) {
+    for (const b of PHASES) {
+      const la = layers(a);
+      const lb = layers(b);
+      for (let i = 0; i < la.length; i++) {
+        assert.ok(Math.abs(luminance(la[i]) - luminance(lb[i])) < 0.1, `${a.name} vs ${b.name} layer ${i}`);
+      }
+    }
   }
 });
 
-test('phases advance in order and wrap', () => {
-  assert.equal(phaseAt(0).from, PHASES[0]);
-  assert.equal(phaseAt(0).to, PHASES[1]);
-  assert.equal(phaseAt(50).from, PHASES[1]);
-  assert.equal(phaseAt(175).to, PHASES[0]);
+test('mixAt steps in quarters over 0.24 s, and is instant when reduced', () => {
+  assert.equal(mixAt(-1, false), 0);
+  assert.equal(mixAt(0, false), 0);
+  assert.equal(mixAt(0.06, false), 0.25);
+  assert.equal(mixAt(0.12, false), 0.5);
+  assert.equal(mixAt(0.18, false), 0.75);
+  assert.equal(mixAt(0.24, false), 1);
+  assert.equal(mixAt(5, false), 1);
+  assert.equal(mixAt(0, true), 1);
+  assert.equal(mixAt(-1, true), 1);
 });
