@@ -280,22 +280,23 @@ export function createRenderer(canvas, opts = {}) {
       ctx.fill();
     }
     ctx.restore();
-    // Line-figure rider standing on the board; a grab reaches a hand down to it.
+    // Line-figure rider standing on the board; a grab reaches a hand down to it, a grind bends the knees.
     const k = sc * 0.9;
+    const ky = t.active === 'grind' || r.grinding ? k * 0.88 : k;
     ctx.strokeStyle = P.rider;
     ctx.lineWidth = LINE;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-10 * k, -16 * k); ctx.lineTo(-8 * k, -30 * k); ctx.lineTo(0, -46 * k);
-    ctx.moveTo(10 * k, -16 * k); ctx.lineTo(8 * k, -30 * k); ctx.lineTo(0, -46 * k);
-    ctx.lineTo(1 * k, -74 * k);
-    ctx.moveTo(1 * k, -70 * k); ctx.lineTo(16 * k, -62 * k);
-    ctx.moveTo(1 * k, -70 * k);
-    if (grabbing) ctx.lineTo(-12 * k, -22 * k);
-    else ctx.lineTo(-14 * k, -60 * k);
+    ctx.moveTo(-10 * k, -16 * ky); ctx.lineTo(-8 * k, -30 * ky); ctx.lineTo(0, -46 * ky);
+    ctx.moveTo(10 * k, -16 * ky); ctx.lineTo(8 * k, -30 * ky); ctx.lineTo(0, -46 * ky);
+    ctx.lineTo(1 * k, -74 * ky);
+    ctx.moveTo(1 * k, -70 * ky); ctx.lineTo(16 * k, -62 * ky);
+    ctx.moveTo(1 * k, -70 * ky);
+    if (grabbing) ctx.lineTo(-12 * k, -22 * ky);
+    else ctx.lineTo(-14 * k, -60 * ky);
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(2 * k, -84 * k, 6 * k, 0, Math.PI * 2);
+    ctx.arc(2 * k, -84 * ky, 6 * k, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
 

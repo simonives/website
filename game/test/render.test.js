@@ -312,3 +312,38 @@ test('drawing at heights 1, 280 and 900 with all six kinds never passes NaN to t
     }
   }
 });
+
+test('a grind pose draws without NaN', () => {
+  const drawAndCheck = (extra) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles: [], ...extra }));
+    assert.ok(c.ctx.calls.length > 20);
+    for (const call of c.ctx.calls) {
+      for (const arg of call.slice(1)) {
+        if (typeof arg === 'number') {
+          assert.ok(Number.isFinite(arg), `non-finite arg in ${call[0]}(${call.slice(1).join(', ')})`);
+        }
+      }
+    }
+    return c.ctx.calls;
+  };
+
+  const idleCalls = drawAndCheck({});
+  const grindTrickCalls = drawAndCheck({ trick: { ...createTrickState(), active: 'grind', progress: 0.5 } });
+  const grindingRiderCalls = drawAndCheck({ rider: { ...createRider(), grinding: true } });
+
+  // Board scale remains flat (1, 1) during a grind trick.
+  const grindScales = grindTrickCalls.filter((x) => x[0] === 'scale');
+  assert.deepEqual(grindScales, [['scale', 1, 1]]);
+
+  // Rider head vertical coordinate is scaled by 0.88 when t.active === 'grind' or r.grinding.
+  const headY = (calls) => {
+    const arcs = calls.filter((x) => x[0] === 'arc');
+    // The rider head is the last arc drawn (after the two wheels).
+    return arcs.at(-1)[2];
+  };
+  assert.ok(Math.abs(headY(grindTrickCalls) - headY(idleCalls) * 0.88) < 1e-6, 'grind trick bends knees (0.88 vertical scale)');
+  assert.ok(Math.abs(headY(grindingRiderCalls) - headY(idleCalls) * 0.88) < 1e-6, 'grinding rider bends knees (0.88 vertical scale)');
+});

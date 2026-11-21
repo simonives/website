@@ -5,6 +5,9 @@ const LIP = 0.12; // seconds of travel before a ramp's end at which to ollie
 export function autoInput({ rider, obstacles, speed }) {
   if (!rider.grounded) {
     const next = obstacles.find((o) => o.x + o.width >= rider.x);
+    if (next && (next.kind === 'rail' || next.kind === 'ledge' || next.kind === 'drop')) {
+      return { ollieDown: false, trick: 'grind' };
+    }
     const odd = next && next.id ? next.id.length % 2 === 1 : false;
     return { ollieDown: false, trick: odd ? 'kickflip' : 'shoveit' };
   }

@@ -40,9 +40,18 @@ test('nothing ahead does nothing, and an obstacle behind is ignored', () => {
 });
 
 test('airborne issues a trick and releases the ollie', () => {
-  const r = autoInput({ rider: { x: 0, grounded: false, vy: 80 }, obstacles: [ob('ledge', 120)], speed: 220 });
+  const r = autoInput({ rider: { x: 0, grounded: false, vy: 80 }, obstacles: [ob('stairs', 120)], speed: 220 });
   assert.equal(r.ollieDown, false);
   assert.ok(r.trick === 'kickflip' || r.trick === 'shoveit');
+});
+
+test('airborne over a rail/ledge/drop asks for a grind', () => {
+  for (const kind of ['rail', 'ledge', 'drop']) {
+    const r = autoInput({ rider: { x: 50, grounded: false, vy: 80 }, obstacles: [ob(kind, 120)], speed: 220 });
+    assert.deepEqual(r, { ollieDown: false, trick: 'grind' }, `expected grind for ${kind}`);
+  }
+  const missingId = autoInput({ rider: { x: 0, grounded: false, vy: 80 }, obstacles: [{ kind: 'ramp', x: 120, width: 200 }], speed: 220 });
+  assert.deepEqual(missingId, { ollieDown: false, trick: 'shoveit' });
 });
 
 test('ollies before drops, rails and gaps, does nothing already on top, does not ollie before a ramp', () => {

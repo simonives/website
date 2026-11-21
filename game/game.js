@@ -1,6 +1,6 @@
 import { PHRASES } from './content.js';
 import { createRider, stepRider } from './lib/physics.js';
-import { createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
+import { TRICK_NAMES, createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
 import { createGround } from './lib/ground.js';
 import { lightNearest } from './lib/obstacles.js';
 import { extend, relay } from './lib/feed.js';
@@ -21,6 +21,7 @@ const SLOW_SECONDS = 0.6;
 
 export function mountSkateGame(canvas, options = {}) {
   const phrases = options.phrases || PHRASES;
+  const rng = options.rng || Math.random;
   const root = canvas.parentElement;
   const mq = globalThis.matchMedia ? globalThis.matchMedia('(prefers-reduced-motion: reduce)') : null;
   const opts = { reducedMotion: options.reducedMotion ?? !!(mq && mq.matches) };
@@ -31,7 +32,10 @@ export function mountSkateGame(canvas, options = {}) {
   canvas.setAttribute('tabindex', '0');
   canvas.setAttribute('role', 'application');
   canvas.setAttribute('aria-roledescription', 'game');
-  canvas.setAttribute('aria-label', 'Skateboard game. Press Space or Up Arrow to ollie. Press again in the air to flip, hold the second press to grab, press a third time to spin. Left Arrow or Z flips, Right Arrow or X spins, Down Arrow or C grabs. P pauses, M toggles sound. There is no way to fail.');
+  canvas.setAttribute(
+    'aria-label',
+    `Skateboard game. Press Space or Up Arrow to ollie. Tap again in the air for a trick, hold to ${TRICK_NAMES.grab.toLowerCase()}, press again for a ${TRICK_NAMES.shoveit.toLowerCase()}. Left Arrow or Z for ${TRICK_NAMES.kickflip}, Right Arrow or X for ${TRICK_NAMES.shoveit}, Down Arrow or C for ${TRICK_NAMES.grab}, V for ${TRICK_NAMES.grind}. P pauses, M toggles sound. There is no way to fail.`,
+  );
 
   const s = {
     rider: createRider(),
@@ -76,15 +80,16 @@ export function mountSkateGame(canvas, options = {}) {
     s.auto = !s.auto;
     autoBtn.setAttribute('aria-pressed', String(s.auto));
   }, false);
-  button('Flip', () => doTrick('kickflip'));
-  const grabBtn = button('Grab', (e) => {
+  button(TRICK_NAMES.kickflip, () => doTrick('kickflip'));
+  button(TRICK_NAMES.shoveit, () => doTrick('shoveit'));
+  const grabBtn = button(TRICK_NAMES.grab, (e) => {
     // A keyboard activation has no press and release, so it grabs for a moment.
     if (e.detail === 0) {
       doTrick('grab');
       setTimeout(releaseGrab, 450);
     }
   });
-  button('Spin', () => doTrick('shoveit'));
+  button(TRICK_NAMES.grind, () => doTrick('grind'));
   grabBtn.addEventListener('pointerdown', () => doTrick('grab'));
   for (const t of ['pointerup', 'pointercancel', 'pointerleave']) grabBtn.addEventListener(t, releaseGrab);
   canvas.after(controls);
@@ -138,12 +143,17 @@ export function mountSkateGame(canvas, options = {}) {
     s.trick = endGrab(s.trick);
   }
 
+  function overGrindable() {
+    const surf = s.ground.surface(s.rider.x, s.rider.y);
+    return surf === 'rail' || surf === 'ledge';
+  }
+
   function control(down) {
     if (down && !running() && why.user) setUserPaused(false);
     if (down) s.press.press();
     else s.press.release();
     if (!running()) return;
-    s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick);
+    s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick, rng, overGrindable());
   }
 
   function rebuildGround() {
@@ -159,14 +169,14 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   function landed(angle) {
-    const j = judgeLanding(s.trick, angle, Math.atan(s.ground.slope(s.rider.x)));
+    const j = judgeLanding(s.trick, angle, Math.atan(s.ground.slope(s.rider.x)), s.rider.grinding);
     s.trick = j.trickState;
     audio.land();
     if (!j.clean) return;
     if (options.onTrick) options.onTrick({ trick: j.trick, streak: s.trick.streak });
     const ob = lightNearest(s.obstacles, s.rider.x);
     if (!ob) {
-      if (!s.auto) a11y.announce(`Clean ${j.trick === 'kickflip' ? 'flip' : j.trick === 'shoveit' ? 'spin' : 'grab'}.`);
+      if (!s.auto) a11y.announce(`Clean ${TRICK_NAMES[j.trick].toLowerCase()}.`);
       return;
     }
     s.caption = ob.sentence;
@@ -206,7 +216,7 @@ export function mountSkateGame(canvas, options = {}) {
     if (s.caption && s.simT > s.captionUntil) s.caption = null;
     extendObstacles(s.rider.x);
     s.cameraY += (Math.max(0, s.rider.y - 80) - s.cameraY) * 0.1;
-    audio.setSpeed(speed / 330);
+    audio.setSpeed(speed / 640);
   }
 
   function render() {
