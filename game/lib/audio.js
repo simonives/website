@@ -1,11 +1,19 @@
-// Synthesised sound. Silent until enable() succeeds inside a user gesture; every method is safe to call regardless.
-const MASTER = 0.15;
+import { createMusic } from './music.js';
+
+// Synthesised sound and backing track. Silent until enable() succeeds inside a user gesture; every method is safe to call regardless.
+const MASTER = 0.35;
+export const EFFECT_GAIN = 1.0;
+export const MUSIC_GAIN = 0.28;
+export const POP_PEAK = 1.3;
+export const LAND_PEAK = 1.8;
+export const CHIME_PEAK = 0.8;
 
 export function createAudio() {
   let ctx = null;
   let master = null;
   let rumbleGain = null;
   let rumbleFilter = null;
+  let music = null;
   let on = false;
 
   function noiseBuffer(seconds) {
@@ -47,7 +55,10 @@ export function createAudio() {
       ctx = c;
       master = ctx.createGain();
       master.gain.value = MASTER;
-      master.connect(ctx.destination);
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.value = -12;
+      compressor.ratio.value = 8;
+      master.connect(compressor).connect(ctx.destination);
       const src = ctx.createBufferSource();
       src.buffer = noiseBuffer(2);
       src.loop = true;
@@ -59,9 +70,20 @@ export function createAudio() {
       src.connect(rumbleFilter).connect(rumbleGain).connect(master);
       src.start();
       on = true;
+
+      const m = createMusic(ctx, master);
+      m.setVolume(MUSIC_GAIN);
+      music = m;
+      m.load().then((loaded) => {
+        if (loaded && on && token === generation && music === m) {
+          m.start();
+        }
+      });
+
       return true;
     } catch {
       on = false;
+      music = null;
       ctx = null;
       if (c) {
         try { c.close(); } catch { /* already closed */ }
@@ -83,6 +105,10 @@ export function createAudio() {
   function disable() {
     generation++;
     on = false;
+    if (music) {
+      music.stop();
+      music = null;
+    }
     if (!ctx) return;
     try { ctx.close(); } catch { /* already closed */ }
     ctx = null;
@@ -99,8 +125,14 @@ export function createAudio() {
       rumbleFilter.frequency.value = 150 + 250 * v;
       rumbleGain.gain.value = Math.min(0.4, 0.1 + 0.15 * v);
     },
-    pop: () => blip('square', 300, 120, 0.08, 0.5),
-    land: () => blip('sine', 140, 60, 0.15, 0.7),
-    chime: () => blip('sine', 660, 880, 0.35, 0.3),
+    pop: () => blip('square', 300, 120, 0.08, POP_PEAK * EFFECT_GAIN),
+    land: () => {
+      if (on && music) music.duck();
+      blip('sine', 140, 60, 0.15, LAND_PEAK * EFFECT_GAIN);
+    },
+    chime: () => {
+      if (on && music) music.duck();
+      blip('sine', 660, 880, 0.35, CHIME_PEAK * EFFECT_GAIN);
+    },
   };
 }
