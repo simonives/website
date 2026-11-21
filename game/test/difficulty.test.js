@@ -19,9 +19,14 @@ test('speed at 75 s is about 980 and approaches 1180 (within 1170 to 1180 at t =
   assert.ok(ceil >= 1170 && ceil <= 1180, `speedAt(1e6) was ${ceil}`);
 });
 
-test('reduced motion holds 110', () => {
-  assert.equal(speedAt(0, true), 110);
-  assert.equal(speedAt(500, true), 110);
+test('full pace unchanged at 640 at t=0', () => {
+  assert.equal(speedAt(0, false), 640);
+  assert.equal(speedAt(75, false), 1180 - 540 * Math.exp(-1));
+});
+
+test('reduced pace is 300', () => {
+  assert.equal(speedAt(0, true), 300);
+  assert.equal(speedAt(500, true), 300);
 });
 
 test('timeAtDistance inverts the ride distance (for t in 0..600, timeAtDistance(D(t)) is within 1e-6 of t)', () => {

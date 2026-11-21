@@ -73,6 +73,7 @@ async function withFakeDom(fn, opts = {}) {
   const prevIO = globalThis.IntersectionObserver;
   const prevAudio = globalThis.AudioContext;
   const prevFetch = globalThis.fetch;
+  const prevMatchMedia = globalThis.matchMedia;
 
   const doc = new EventTarget();
   doc.hidden = false;
@@ -101,6 +102,12 @@ async function withFakeDom(fn, opts = {}) {
   if (opts.audioContext) {
     globalThis.AudioContext = opts.audioContext;
     globalThis.fetch = () => Promise.reject(new Error('offline'));
+  }
+  let mq = null;
+  if (opts.matchMedia !== undefined) {
+    mq = new EventTarget();
+    mq.matches = !!opts.matchMedia;
+    globalThis.matchMedia = () => mq;
   }
 
   const calls = [];
@@ -138,6 +145,13 @@ async function withFakeDom(fn, opts = {}) {
       calls,
       stepFrames,
       setIntersecting: (v) => ioCallback && ioCallback([{ isIntersecting: v }]),
+      setReducedMotionMedia: (matches) => {
+        if (!mq) return;
+        mq.matches = !!matches;
+        const e = new Event('change');
+        e.matches = !!matches;
+        mq.dispatchEvent(e);
+      },
     });
   } finally {
     globalThis.document = prevDoc;
@@ -149,6 +163,8 @@ async function withFakeDom(fn, opts = {}) {
     else globalThis.AudioContext = prevAudio;
     if (prevFetch === undefined) delete globalThis.fetch;
     else globalThis.fetch = prevFetch;
+    if (prevMatchMedia === undefined) delete globalThis.matchMedia;
+    else globalThis.matchMedia = prevMatchMedia;
   }
 }
 
@@ -159,7 +175,7 @@ test('game controls render Kickflip, Shove-it, Grab, Grind in order and canvas a
       const controls = root.children.find((el) => el.className === 'skate-controls');
       assert.ok(controls, 'controls container created');
       const labels = controls.children.map((b) => b.textContent);
-      assert.deepEqual(labels.slice(3), ['Kickflip', 'Shove-it', 'Grab', 'Grind']);
+      assert.deepEqual(labels.slice(2), ['Auto-ride', 'Calm motion', 'Kickflip', 'Shove-it', 'Grab', 'Grind']);
 
       const aria = canvas.getAttribute('aria-label');
       for (const name of ['Kickflip', 'Shove-it', 'Grab', 'Grind']) {
@@ -188,21 +204,29 @@ test('mountSkateGame uses options.rng for air taps and announces Clean <trick>. 
         e.repeat = false;
         return e;
       };
-      // Ollie at t = 0 (under reducedMotion speed is 110, so rider lands around x ~ 100, far before START - LOOKAHEAD = 200)
+      const doAirTapTrick = (startNow) => {
+        let t = startNow;
+        canvas.dispatchEvent(key('keydown', 'Space'));
+        t = stepFrames(2, t);
+        canvas.dispatchEvent(key('keyup', 'Space'));
+        t = stepFrames(2, t);
+        // Quick tap in air -> with rng () => 0.9 and not over grindable -> shoveit
+        canvas.dispatchEvent(key('keydown', 'Space'));
+        t = stepFrames(2, t);
+        canvas.dispatchEvent(key('keyup', 'Space'));
+        // Advance until rider lands cleanly
+        return stepFrames(60, t);
+      };
+      // At calm pace (300), the first landing (x ~ 275) lights the first obstacle at x = 800.
+      // A second trick right after lands around x ~ 610, well before obstacle 1 (x >= 1392) minus LOOKAHEAD (600),
+      // so no unlit obstacle is in range and the game announces "Clean shove-it." without a caption.
       let now = stepFrames(1, 0);
-      canvas.dispatchEvent(key('keydown', 'Space'));
-      now = stepFrames(2, now);
-      canvas.dispatchEvent(key('keyup', 'Space'));
-      now = stepFrames(2, now);
-      // Quick tap in air -> with rng () => 0.9 and not over grindable -> shoveit
-      canvas.dispatchEvent(key('keydown', 'Space'));
-      now = stepFrames(2, now);
-      canvas.dispatchEvent(key('keyup', 'Space'));
-      // Advance until rider lands cleanly
-      stepFrames(60, now);
+      now = doAirTapTrick(now);
+      now = doAirTapTrick(now);
 
-      assert.ok(tricks.length >= 1, 'expected a clean trick landing');
+      assert.ok(tricks.length >= 2, 'expected two clean trick landings');
       assert.equal(tricks[0].trick, 'shoveit');
+      assert.equal(tricks[1].trick, 'shoveit');
 
       // Wait for the 30 ms live-region timeout in a11y.announce
       await new Promise((r) => setTimeout(r, 60));
@@ -415,4 +439,198 @@ test('timers started by game.js are cleared on destroy and no callback fires aft
     globalThis.setTimeout = prevSet;
     globalThis.clearTimeout = prevClear;
   }
+});
+
+test('the Calm motion button reflects the initial reduced-motion state', async () => {
+  for (const initial of [false, true]) {
+    await withFakeDom(({ root, canvas }) => {
+      const game = mountSkateGame(canvas, { reducedMotion: initial });
+      try {
+        const controls = root.children.find((el) => el.className === 'skate-controls');
+        const autoIdx = controls.children.findIndex((b) => b.textContent === 'Auto-ride');
+        const motionBtn = controls.children[autoIdx + 1];
+        assert.ok(motionBtn, 'Calm motion button should sit immediately after Auto-ride');
+        assert.equal(motionBtn.textContent, 'Calm motion');
+        assert.equal(motionBtn.getAttribute('aria-pressed'), String(initial));
+      } finally {
+        game.destroy();
+      }
+    });
+  }
+
+  for (const matches of [false, true]) {
+    await withFakeDom(({ root, canvas }) => {
+      const game = mountSkateGame(canvas);
+      try {
+        const controls = root.children.find((el) => el.className === 'skate-controls');
+        const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+        assert.ok(motionBtn, 'Calm motion button present when using matchMedia');
+        assert.equal(motionBtn.getAttribute('aria-pressed'), String(matches));
+      } finally {
+        game.destroy();
+      }
+    }, { matchMedia: matches });
+  }
+});
+
+test('clicking Calm motion toggles opts and speed and changes aria-pressed', async () => {
+  await withFakeDom(({ root, canvas, calls, stepFrames }) => {
+    const game = mountSkateGame(canvas, {
+      reducedMotion: false,
+      phrases: [{ id: 'q', label: 'Quick test', sentence: 'Quick test phrase.' }],
+    });
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'false');
+
+      function readFrame(now) {
+        calls.length = 0;
+        const next = stepFrames(1, now);
+        const fills = calls.filter((c) => c[0] === 'fill').length;
+        const qIdx = calls.findIndex((c) => c[0] === 'fillText' && c[1] === 'Q');
+        let camX = null;
+        if (qIdx >= 2 && calls[qIdx - 2][0] === 'translate') {
+          camX = 802 - (calls[qIdx - 2][1] - 240) / 1.25;
+        }
+        return { now: next, fills, camX };
+      }
+
+      // Advance until obstacle 0 (x = 800) is on screen (camX >= 336).
+      let now = stepFrames(36, 0);
+      const fullA = readFrame(now);
+      const fullB = readFrame(fullA.now);
+      now = fullB.now;
+      const fullSpeed = (fullB.camX - fullA.camX) * 60;
+      assert.equal(fullA.fills, 5, 'full motion draws 2 parallax layers + ground + 2 wheels');
+      assert.ok(fullSpeed >= 640 && fullSpeed < 700, `expected full speed >= 640, got ${fullSpeed}`);
+
+      // Toggle Calm motion ON.
+      motionBtn.dispatchEvent(new Event('click'));
+      assert.equal(motionBtn.textContent, 'Calm motion');
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'true');
+      now = stepFrames(1, now); // prime loop after refresh()
+      const calmA = readFrame(now);
+      const calmB = readFrame(calmA.now);
+      now = calmB.now;
+      const calmSpeed = (calmB.camX - calmA.camX) * 60;
+      assert.equal(calmA.fills, 4, 'calm motion draws 1 parallax layer + ground + 2 wheels');
+      assert.ok(Math.abs(calmSpeed - 300) < 1e-6, `expected calm speed 300, got ${calmSpeed}`);
+
+      // Toggle Calm motion OFF (back to Full motion).
+      motionBtn.dispatchEvent(new Event('click'));
+      assert.equal(motionBtn.textContent, 'Calm motion');
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'false');
+      now = stepFrames(1, now);
+      const backA = readFrame(now);
+      const backB = readFrame(backA.now);
+      const backSpeed = (backB.camX - backA.camX) * 60;
+      assert.equal(backA.fills, 5, 'full motion restores 2 parallax layers');
+      assert.ok(backSpeed >= 640, `expected full speed >= 640 after toggle back, got ${backSpeed}`);
+    } finally {
+      game.destroy();
+    }
+  });
+});
+
+test('clicking it does not pause or unpause the game', async () => {
+  // Running in full motion: clicking Calm motion keeps running.
+  const log = [];
+  await withFakeDom(async ({ root, canvas, calls, stepFrames }) => {
+    const game = mountSkateGame(canvas, { reducedMotion: false });
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const [pauseBtn, soundBtn] = controls.children;
+      const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+
+      soundBtn.dispatchEvent(new Event('click'));
+      await new Promise((r) => setTimeout(r, 10));
+      log.length = 0;
+
+      motionBtn.dispatchEvent(new Event('click'));
+      assert.equal(pauseBtn.textContent, 'Pause', 'clicking Calm motion while running must not pause');
+      assert.ok(!log.includes('suspend'), 'clicking Calm motion while running must not suspend audio');
+
+      calls.length = 0;
+      stepFrames(2, 0);
+      assert.ok(calls.length > 0, 'game loop still advances frames');
+      assert.ok(
+        !calls.some((c) => c[0] === 'fillText' && c[1] === 'Press Space to ride'),
+        'paused overlay must not render while running',
+      );
+    } finally {
+      game.destroy();
+    }
+  }, { audioContext: fakeAudioContext(log) });
+
+  // Paused at start under reduced motion: clicking Calm motion off does not unpause.
+  await withFakeDom(({ root, canvas, calls, stepFrames }) => {
+    const game = mountSkateGame(canvas, { reducedMotion: true });
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const [pauseBtn] = controls.children;
+      const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+      assert.equal(pauseBtn.textContent, 'Resume', 'reduced-motion game starts paused');
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'true');
+
+      calls.length = 0;
+      motionBtn.dispatchEvent(new Event('click'));
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'false');
+      assert.equal(pauseBtn.textContent, 'Resume', 'turning off Calm motion while paused must not unpause');
+      assert.ok(
+        calls.some((c) => c[0] === 'fillText' && c[1] === 'Press Space to ride'),
+        'paused overlay remains drawn',
+      );
+
+      calls.length = 0;
+      stepFrames(5, 0);
+      assert.equal(calls.length, 0, 'no running frames scheduled while still paused');
+    } finally {
+      game.destroy();
+    }
+  });
+});
+
+test('a system media-query change updates the button', async () => {
+  await withFakeDom(({ root, canvas, setReducedMotionMedia }) => {
+    const game = mountSkateGame(canvas);
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const [pauseBtn] = controls.children;
+      const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'false');
+      assert.equal(pauseBtn.textContent, 'Pause');
+
+      setReducedMotionMedia(true);
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'true');
+      assert.equal(pauseBtn.textContent, 'Resume', 'OS media-query reduce pauses the game');
+
+      setReducedMotionMedia(false);
+      assert.equal(motionBtn.getAttribute('aria-pressed'), 'false');
+      assert.equal(pauseBtn.textContent, 'Resume', 'OS media-query unreduce does not force unpause');
+    } finally {
+      game.destroy();
+    }
+  }, { matchMedia: false });
+});
+
+test('announces Calm motion on and Full motion on', async () => {
+  await withFakeDom(async ({ root, canvas }) => {
+    const game = mountSkateGame(canvas, { reducedMotion: false });
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const motionBtn = controls.children.find((b) => b.textContent === 'Calm motion');
+      const live = root.children.find((el) => el.getAttribute('role') === 'status');
+
+      motionBtn.dispatchEvent(new Event('click'));
+      await new Promise((r) => setTimeout(r, 60));
+      assert.equal(live.textContent, 'Calm motion on.');
+
+      motionBtn.dispatchEvent(new Event('click'));
+      await new Promise((r) => setTimeout(r, 60));
+      assert.equal(live.textContent, 'Full motion on.');
+    } finally {
+      game.destroy();
+    }
+  });
 });

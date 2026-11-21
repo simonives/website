@@ -2,10 +2,11 @@ const BASE_SPEED = 640;
 const CEIL_SPEED = 1180;
 const SPEED_SPAN = CEIL_SPEED - BASE_SPEED;
 const RAMP_TAU = 75;
+const CALM_SPEED = 300;
 
-// The ride gets faster the longer it runs. Reduced motion holds the half-speed baseline (110), whatever the faster default.
+// The ride gets faster the longer it runs. Reduced motion holds a steady calm pace (300) instead of ramping up.
 export function speedAt(t, reduced) {
-  if (reduced) return 110;
+  if (reduced) return CALM_SPEED;
   return CEIL_SPEED - SPEED_SPAN * Math.exp(-t / RAMP_TAU);
 }
 

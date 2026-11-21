@@ -81,6 +81,9 @@ export function mountSkateGame(canvas, options = {}) {
     s.auto = !s.auto;
     autoBtn.setAttribute('aria-pressed', String(s.auto));
   }, false);
+  const motionBtn = button('Calm motion', () => {
+    applyMotion(!opts.reducedMotion, { fromSystem: false });
+  }, opts.reducedMotion);
   button(TRICK_NAMES.kickflip, () => doTrick('kickflip'));
   button(TRICK_NAMES.shoveit, () => doTrick('shoveit'));
   const grabBtn = button(TRICK_NAMES.grab, (e) => {
@@ -101,6 +104,7 @@ export function mountSkateGame(canvas, options = {}) {
 
   function syncButtons() {
     pauseBtn.textContent = why.user ? 'Resume' : 'Pause';
+    motionBtn.setAttribute('aria-pressed', String(opts.reducedMotion));
   }
 
   // ----- helpers -----
@@ -279,9 +283,9 @@ export function mountSkateGame(canvas, options = {}) {
   if (io) io.observe(canvas);
   const ro = 'ResizeObserver' in globalThis ? new ResizeObserver(() => { renderer.resize(); if (!running()) render(); }) : null;
   if (ro) ro.observe(canvas);
-  const onMotion = (e) => {
-    opts.reducedMotion = e.matches;
-    if (e.matches) why.user = true;
+  function applyMotion(reduced, { fromSystem } = {}) {
+    opts.reducedMotion = !!reduced;
+    if (fromSystem && opts.reducedMotion) why.user = true;
     // Re-lay the obstacles ahead of the rider with the new difficulty setting.
     const n = relay({ obstacles: s.obstacles, genTo: s.genTo }, s.rider.x, phrases, opts.reducedMotion);
     s.obstacles = n.obstacles;
@@ -289,7 +293,10 @@ export function mountSkateGame(canvas, options = {}) {
     rebuildGround();
     syncButtons();
     refresh();
-  };
+    a11y.announce(opts.reducedMotion ? 'Calm motion on.' : 'Full motion on.');
+  }
+
+  const onMotion = (e) => applyMotion(e.matches, { fromSystem: true });
   if (mq && mq.addEventListener) mq.addEventListener('change', onMotion);
 
   renderer.resize();
