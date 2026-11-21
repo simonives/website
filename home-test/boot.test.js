@@ -13,7 +13,7 @@ const LOCATION_TABLE = [
   { label: 'root path "/" with #site hash', pathname: '/', hash: '#site', expected: 'site' },
   { label: '/index.html with #site hash', pathname: '/index.html', hash: '#site', expected: 'site' },
   { label: 'empty pathname "" with #site hash', pathname: '', hash: '#site', expected: 'site' },
-  { label: 'root path "/" with non-site hash', pathname: '/', hash: '#about', expected: 'game' },
+  { label: 'root path "/" with non-site hash', pathname: '/', hash: '#about', expected: 'site' },
   { label: '/now.html with empty hash', pathname: '/now.html', hash: '', expected: 'site' },
   { label: '/doctrine.html with empty hash', pathname: '/doctrine.html', hash: '', expected: 'site' },
   { label: '/404.html with empty hash', pathname: '/404.html', hash: '', expected: 'site' },

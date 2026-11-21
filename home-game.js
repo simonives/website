@@ -248,7 +248,9 @@ export function initHomeGame(deps = {}) {
       if (targetState === 'game') {
         const loaded = await ensureGame();
         if (token !== applyToken) return;
-        if (!loaded) {
+        // The boot failsafe already showed the site to a visitor who waited too long; do not pull the game over it.
+        const lateStart = opts.initial && doc.documentElement.hasAttribute('data-home-timeout');
+        if (!loaded || lateStart) {
           currentState = 'site';
           applySite({ focus: false });
           return;
@@ -356,7 +358,7 @@ export function initHomeGame(deps = {}) {
   win.addEventListener('popstate', onPopState);
   doc.addEventListener('keydown', onKeyDown);
 
-  const ready = apply(currentState, { focus: false });
+  const ready = apply(currentState, { focus: false, initial: true });
 
   return {
     ready,

@@ -1,5 +1,5 @@
 export function stateFromLocation(pathname, hash) {
-  if (hash === '#site') return 'site';
+  if (hash && hash !== '#') return 'site';
   if (pathname === '/' || pathname === '/index.html' || pathname === '') {
     return 'game';
   }
@@ -17,6 +17,9 @@ export function nextState(state, event, ctx = { fromGame: false }) {
       return { state, historyOp: 'none', fromGame };
 
     case 'play':
+      if (state === 'site' && fromGame) {
+        return { state: 'game', historyOp: 'back', fromGame: false };
+      }
       if (state === 'site') {
         return { state: 'game', historyOp: 'push-game', fromGame: false };
       }

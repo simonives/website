@@ -9,7 +9,7 @@ const LOCATION_TABLE = [
   { label: 'root path "/" with #site hash', pathname: '/', hash: '#site', expected: 'site' },
   { label: '/index.html with #site hash', pathname: '/index.html', hash: '#site', expected: 'site' },
   { label: 'empty pathname "" with #site hash', pathname: '', hash: '#site', expected: 'site' },
-  { label: 'root path "/" with non-site hash', pathname: '/', hash: '#about', expected: 'game' },
+  { label: 'root path "/" with non-site hash', pathname: '/', hash: '#about', expected: 'site' },
   { label: '/now.html with empty hash', pathname: '/now.html', hash: '', expected: 'site' },
   { label: '/doctrine.html with empty hash', pathname: '/doctrine.html', hash: '', expected: 'site' },
   { label: '/404.html with empty hash', pathname: '/404.html', hash: '', expected: 'site' },
@@ -69,13 +69,14 @@ describe('nextState', () => {
     });
   });
 
-  it('play from site pushes the bare path and clears fromGame', () => {
+  it('play from site entered via the game goes back instead of stacking history', () => {
     const result = nextState('site', 'play', { fromGame: true });
-    assert.deepEqual(result, {
-      state: 'game',
-      historyOp: 'push-game',
-      fromGame: false,
-    });
+    assert.deepEqual(result, { state: 'game', historyOp: 'back', fromGame: false });
+  });
+
+  it('play from a directly loaded site pushes the bare path', () => {
+    const result = nextState('site', 'play', { fromGame: false });
+    assert.deepEqual(result, { state: 'game', historyOp: 'push-game', fromGame: false });
   });
 
   it('popstate events never push', () => {
