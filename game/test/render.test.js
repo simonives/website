@@ -347,3 +347,47 @@ test('a grind pose draws without NaN', () => {
   assert.ok(Math.abs(headY(grindTrickCalls) - headY(idleCalls) * 0.88) < 1e-6, 'grind trick bends knees (0.88 vertical scale)');
   assert.ok(Math.abs(headY(grindingRiderCalls) - headY(idleCalls) * 0.88) < 1e-6, 'grinding rider bends knees (0.88 vertical scale)');
 });
+
+test('short, wide viewports (1200x200, 2400x150) draw every obstacle overlapping [fromX(0), fromX(w)], skip fully off-screen ones, and emit no NaN', () => {
+  for (const [w, h] of [[1200, 200], [2400, 150]]) {
+    const sc = h / 320;
+    const cameraX = 2000;
+    const fromX = (sx) => (sx - w * 0.3) / sc + cameraX;
+    const visL = fromX(0);
+    const visR = fromX(w);
+
+    const obs = [
+      { kind: 'ledge', id: 'off-l', label: 'OFFLEFT', sentence: '', x: visL - 500, width: 120, height: 24, steps: 0, lit: false },
+      { kind: 'ledge', id: 'edge-l', label: 'EDGELEFT', sentence: '', x: visL - 60, width: 120, height: 24, steps: 0, lit: false },
+      { kind: 'ramp', id: 'near-l', label: 'NEARLEFT', sentence: '', x: visL + 200, width: 160, height: 40, steps: 0, lit: false },
+      { kind: 'stairs', id: 'mid', label: 'MIDSTAIR', sentence: '', x: cameraX + 400, width: 200, height: 40, steps: 4, lit: false },
+      { kind: 'drop', id: 'far-r', label: 'FARRIGHT', sentence: '', x: visR - 400, width: 180, height: 50, steps: 0, lit: false },
+      { kind: 'rail', id: 'edge-r', label: 'EDGERIGHT', sentence: '', x: visR - 60, width: 160, height: 24, steps: 0, lit: false },
+      { kind: 'ledge', id: 'off-r', label: 'OFFRIGHT', sentence: '', x: visR + 500, width: 120, height: 24, steps: 0, lit: false },
+    ];
+
+    const c = stubCanvas(w, h);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles: obs, cameraX, rider: { ...createRider(), x: cameraX } }));
+
+    const texts = c.ctx.calls.filter((x) => x[0] === 'fillText').map((x) => x[1]).join('');
+    for (const o of obs) {
+      const overlaps = o.x + o.width >= visL && o.x <= visR;
+      if (overlaps) {
+        const expected = o.kind === 'rail' ? o.label.slice(0, 4) : o.label;
+        assert.ok(texts.includes(expected), `${w}x${h}: visible obstacle ${o.label} [${o.x}, ${o.x + o.width}] in [${visL}, ${visR}] must be drawn`);
+      } else {
+        assert.ok(!texts.includes(o.label), `${w}x${h}: off-screen obstacle ${o.label} should be culled`);
+      }
+    }
+
+    for (const call of c.ctx.calls) {
+      for (const arg of call.slice(1)) {
+        if (typeof arg === 'number') {
+          assert.ok(Number.isFinite(arg), `${w}x${h}: non-finite arg in ${call[0]}(${call.slice(1).join(', ')})`);
+        }
+      }
+    }
+  }
+});

@@ -106,3 +106,25 @@ test('auto-ride survives 300 simulated seconds at the real speed ramp with no Na
   }
   assert.ok(rider.x > 200000, `rider only reached ${rider.x}`);
 });
+
+test('auto-ride wall hits stay at or below 3 per minute after the first 30 seconds over 300 simulated seconds', () => {
+  const dt = 1 / 60;
+  const steps = 300 * 60;
+  const obstacles = placeObstacles(PHRASES, 0, 380000);
+  const ground = createGround(obstacles);
+  let rider = createRider();
+  let rideT = 0;
+  let hitsAfter30 = 0;
+  for (let i = 0; i < steps; i++) {
+    const simT = i * dt;
+    const speed = speedAt(rideT, false);
+    const input = autoInput({ rider, obstacles, speed });
+    rider = stepRider(rider, input, dt, speed, ground);
+    const hit = rider.hit === 'wall';
+    rideT = advanceClock(rideT, dt, true, hit);
+    if (hit && simT >= 30) hitsAfter30++;
+  }
+  const minutesAfter30 = (300 - 30) / 60;
+  const hitsPerMinute = hitsAfter30 / minutesAfter30;
+  assert.ok(hitsPerMinute <= 3, `expected <= 3 wall hits/min after 30 s, got ${hitsPerMinute.toFixed(2)} (${hitsAfter30} hits)`);
+});

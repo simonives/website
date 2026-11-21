@@ -283,3 +283,72 @@ test('trick state returns to idle after landing', () => {
   assert.equal(missed.trickState.queued, null);
   assert.equal(missed.trickState.attempted, false);
 });
+
+test('flat-ground ollie at speed 1180 finishes a kickflip started on the first airborne frame and starts a queued shove-it, cancelling cleanly on landing', async () => {
+  const { createRider, stepRider } = await import('../lib/physics.js');
+  const flatGround = { height: () => 0, slope: () => 0 };
+  const dt = 1 / 60;
+  const speed = 1180;
+
+  // Case 1: Kickflip started on the first airborne frame completes cleanly before landing.
+  {
+    let r = { ...createRider(), x: 0, y: 0, angle: 0 };
+    let t = createTrickState();
+    r = stepRider(r, { ollieDown: true }, dt, speed, flatGround);
+    assert.equal(r.grounded, false, 'ollie leaves flat ground');
+    assert.equal(r.ollied, true);
+
+    t = airPress(t, !r.grounded);
+    t = airRelease(t, () => 0, false);
+    assert.equal(t.active, 'kickflip');
+
+    let kickflipDoneInAir = false;
+    let prevAngle = r.angle;
+    for (let i = 0; i < 120 && !r.grounded; i++) {
+      prevAngle = r.angle;
+      r = stepRider(r, { ollieDown: false }, dt, speed, flatGround);
+      t = stepTrick(t, dt);
+      if (!r.grounded && t.done.includes('kickflip') && t.active === null) kickflipDoneInAir = true;
+    }
+    assert.equal(r.grounded, true, 'rider landed');
+    assert.equal(kickflipDoneInAir, true, 'kickflip must complete before landing');
+    const j = judgeLanding(t, prevAngle, 0, false);
+    assert.equal(j.clean, true);
+    assert.equal(j.trick, 'kickflip');
+    assert.equal(j.trickState.active, null);
+  }
+
+  // Case 2: Queued shove-it after kickflip starts in air and cancels cleanly to idle on landing if unfinished.
+  {
+    let r = { ...createRider(), x: 0, y: 0, angle: 0 };
+    let t = createTrickState();
+    r = stepRider(r, { ollieDown: true }, dt, speed, flatGround);
+    t = airPress(t, !r.grounded);
+    t = airRelease(t, () => 0, false);
+    assert.equal(t.active, 'kickflip');
+    t = airPress(t, !r.grounded);
+    assert.equal(t.queued, 'shoveit');
+
+    let sawKickflipDone = false;
+    let sawShoveitStart = false;
+    let prevAngle = r.angle;
+    for (let i = 0; i < 120 && !r.grounded; i++) {
+      prevAngle = r.angle;
+      r = stepRider(r, { ollieDown: false }, dt, speed, flatGround);
+      t = stepTrick(t, dt);
+      if (t.done.includes('kickflip')) sawKickflipDone = true;
+      if (!r.grounded && t.active === 'shoveit') sawShoveitStart = true;
+    }
+    assert.equal(r.grounded, true, 'rider landed');
+    assert.equal(sawKickflipDone, true, 'kickflip completed before landing');
+    assert.equal(sawShoveitStart, true, 'queued shove-it got to start before landing');
+    const j = judgeLanding(t, prevAngle, 0, false);
+    assert.equal(j.trickState.active, null, 'no stuck active trick after landing');
+    assert.equal(j.trickState.progress, 0);
+    assert.equal(j.trickState.pending, null);
+    assert.equal(j.trickState.queued, null);
+    assert.equal(j.trickState.presses, 0);
+    assert.deepEqual(j.trickState.done, []);
+    assert.equal(j.trickState.attempted, false);
+  }
+});

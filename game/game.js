@@ -58,6 +58,7 @@ export function mountSkateGame(canvas, options = {}) {
   const why = { user: !!opts.reducedMotion, hidden: false, offscreen: false };
   let loop = createLoop();
   let raf = 0;
+  let grabTimer = 0;
   let destroyed = false;
 
   // ----- controls -----
@@ -86,12 +87,16 @@ export function mountSkateGame(canvas, options = {}) {
     // A keyboard activation has no press and release, so it grabs for a moment.
     if (e.detail === 0) {
       doTrick('grab');
-      setTimeout(releaseGrab, 450);
+      clearTimeout(grabTimer);
+      grabTimer = setTimeout(() => {
+        grabTimer = 0;
+        releaseGrab();
+      }, 450);
     }
   });
   button(TRICK_NAMES.grind, () => doTrick('grind'));
   grabBtn.addEventListener('pointerdown', () => doTrick('grab'));
-  for (const t of ['pointerup', 'pointercancel', 'pointerleave']) grabBtn.addEventListener(t, releaseGrab);
+  for (const t of ['pointerup', 'pointercancel', 'pointerleave', 'blur']) grabBtn.addEventListener(t, releaseGrab);
   canvas.after(controls);
 
   function syncButtons() {
@@ -129,9 +134,14 @@ export function mountSkateGame(canvas, options = {}) {
       soundBtn.textContent = 'Sound off';
       soundBtn.setAttribute('aria-pressed', 'false');
     } else if (await audio.enable()) {
+      if (destroyed) {
+        audio.disable();
+        return;
+      }
       soundBtn.textContent = 'Sound on';
       soundBtn.setAttribute('aria-pressed', 'true');
-    } else a11y.announce('Sound is not available in this browser.');
+      if (!running()) audio.suspend();
+    } else if (!destroyed) a11y.announce('Sound is not available in this browser.');
   }
 
   function doTrick(kind) {
@@ -140,6 +150,10 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   function releaseGrab() {
+    if (grabTimer) {
+      clearTimeout(grabTimer);
+      grabTimer = 0;
+    }
     s.trick = endGrab(s.trick);
   }
 
@@ -150,10 +164,14 @@ export function mountSkateGame(canvas, options = {}) {
 
   function control(down) {
     if (down && !running() && why.user) setUserPaused(false);
-    if (down) s.press.press();
-    else s.press.release();
-    if (!running()) return;
-    s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick, rng, overGrindable());
+    if (down) {
+      s.press.press();
+      if (!running()) return;
+      s.trick = airPress(s.trick, airborne());
+    } else {
+      s.press.release();
+      s.trick = airRelease(s.trick, rng, overGrindable());
+    }
   }
 
   function rebuildGround() {
@@ -190,13 +208,14 @@ export function mountSkateGame(canvas, options = {}) {
   function step() {
     s.simT += STEP;
     const speed = speedAt(s.rideT, opts.reducedMotion) * (s.simT < s.slowUntil ? SLOW : 1);
-    let ollieDown = s.press.take();
+    let ollieDown = s.press.take(s.rider.grounded);
     if (s.auto) {
       const a = autoInput({ rider: s.rider, obstacles: s.obstacles, speed });
       ollieDown = a.ollieDown;
       if (a.trick && !s.trick.attempted) s.trick = startTrick(s.trick, a.trick, airborne());
     }
     const wasGrounded = s.rider.grounded;
+    const wasHeld = s.rider.ollieHeld;
     const prevAngle = s.rider.angle;
     s.rider = stepRider(s.rider, { ollieDown }, STEP, speed, s.ground);
     if (s.rider.ollied) {
@@ -207,6 +226,7 @@ export function mountSkateGame(canvas, options = {}) {
     }
     const hit = s.rider.hit === 'wall';
     if (hit) {
+      if (!s.auto && wasGrounded && ollieDown && !wasHeld) s.press.requeue();
       s.slowUntil = s.simT + SLOW_SECONDS;
       audio.land();
     }
@@ -282,6 +302,8 @@ export function mountSkateGame(canvas, options = {}) {
     destroy() {
       destroyed = true;
       cancelAnimationFrame(raf);
+      clearTimeout(grabTimer);
+      grabTimer = 0;
       detachInput();
       document.removeEventListener('visibilitychange', onVisibility);
       if (io) io.disconnect();
