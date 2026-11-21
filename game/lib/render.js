@@ -1,5 +1,6 @@
 import { height as terrainHeight } from './terrain.js';
 import { createGround } from './ground.js';
+import { groundLine } from './layout.js';
 
 const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 const VIEW_H = 320; // world units visible vertically
@@ -65,7 +66,7 @@ export function createRenderer(canvas, opts = {}) {
     if (w <= 0 || h <= 0) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const sc = h / VIEW_H;
-    const baseY = h * 0.7;
+    const baseY = groundLine(h);
     const camX = f.cameraX;
     const camY = f.cameraY || 0;
     const P = f.phase.from;

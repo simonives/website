@@ -3,11 +3,27 @@
   --fg: #f4efe6;
   --focus: #ffd23f;
 }
+html, body {
+  height: 100%;
+}
 body {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--fg);
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#after-game {
+  flex: 0 0 0;
+  height: 0;
 }
 .skip-link {
   position: absolute;
@@ -23,7 +39,8 @@ body {
 canvas#skate, .skate-canvas {
   display: block;
   width: 100%;
-  height: 60vh;
+  flex: 1 1 auto;
+  height: auto;
   min-height: 280px;
   background: var(--bg);
   touch-action: pan-y pinch-zoom;

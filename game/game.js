@@ -283,6 +283,3 @@ export function mountSkateGame(canvas, options = {}) {
     },
   };
 }
-
-const el = document.getElementById('skate');
-if (el) mountSkateGame(el);
