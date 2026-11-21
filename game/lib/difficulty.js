@@ -1,5 +1,5 @@
-const BASE_SPEED = 640;
-const CEIL_SPEED = 1180;
+export const BASE_SPEED = 640;
+export const CEIL_SPEED = 1600;
 const SPEED_SPAN = CEIL_SPEED - BASE_SPEED;
 const RAMP_TAU = 75;
 const CALM_SPEED = 300;
@@ -11,7 +11,7 @@ export function speedAt(t, reduced) {
 }
 
 // Ride time t >= 0 at which an unbroken ride from t = 0 has covered distance x.
-// Inverse of D(t) = 1180 * t - 540 * 75 * (1 - exp(-t / 75)).
+// Inverse of D(t) = 1600 * t - 960 * 75 * (1 - exp(-t / 75)).
 export function timeAtDistance(x) {
   if (x <= 0) return 0;
   let lo = 0;

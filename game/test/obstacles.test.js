@@ -47,7 +47,7 @@ test('at the speed in force at each obstacle, clear ground lasts at least 0.55 s
       assert.ok(seconds >= 0.55, `early clear time before ${i}: ${seconds} s < 0.55 s at v=${v}`);
       earlyChecked++;
     }
-    if (v >= 1170) ceilingChecked++;
+    if (v >= 1590) ceilingChecked++;
   }
   assert.ok(earlyChecked > 0, 'expected pairs in the first 4000 units');
   assert.ok(ceilingChecked > 0, 'expected pairs near the ceiling speed');

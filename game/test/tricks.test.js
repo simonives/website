@@ -284,11 +284,11 @@ test('trick state returns to idle after landing', () => {
   assert.equal(missed.trickState.attempted, false);
 });
 
-test('flat-ground ollie at speed 1180 finishes a kickflip started on the first airborne frame and starts a queued shove-it, cancelling cleanly on landing', async () => {
+test('flat-ground ollie at speed 1600 finishes a kickflip started on the first airborne frame and starts a queued shove-it, cancelling cleanly on landing', async () => {
   const { createRider, stepRider } = await import('../lib/physics.js');
   const flatGround = { height: () => 0, slope: () => 0 };
   const dt = 1 / 60;
-  const speed = 1180;
+  const speed = 1600;
 
   // Case 1: Kickflip started on the first airborne frame completes cleanly before landing.
   {

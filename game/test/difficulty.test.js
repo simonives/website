@@ -12,16 +12,16 @@ test('speed starts at 640 and rises strictly', () => {
   }
 });
 
-test('speed at 75 s is about 980 and approaches 1180 (within 1170 to 1180 at t = 1e6)', () => {
+test('speed at 75 s is about 1247 and approaches 1600 (within 1590 to 1600 at t = 1e6)', () => {
   const at75 = speedAt(75, false);
-  assert.ok(Math.abs(at75 - 981.35) < 1, `speedAt(75) was ${at75}`);
+  assert.ok(Math.abs(at75 - 1246.8) < 1, `speedAt(75) was ${at75}`);
   const ceil = speedAt(1e6, false);
-  assert.ok(ceil >= 1170 && ceil <= 1180, `speedAt(1e6) was ${ceil}`);
+  assert.ok(ceil >= 1590 && ceil <= 1600, `speedAt(1e6) was ${ceil}`);
 });
 
 test('full pace unchanged at 640 at t=0', () => {
   assert.equal(speedAt(0, false), 640);
-  assert.equal(speedAt(75, false), 1180 - 540 * Math.exp(-1));
+  assert.equal(speedAt(75, false), 1600 - 960 * Math.exp(-1));
 });
 
 test('reduced pace is 300', () => {
@@ -30,7 +30,7 @@ test('reduced pace is 300', () => {
 });
 
 test('timeAtDistance inverts the ride distance (for t in 0..600, timeAtDistance(D(t)) is within 1e-6 of t)', () => {
-  const D = (t) => 1180 * t - 540 * 75 * (1 - Math.exp(-t / 75));
+  const D = (t) => 1600 * t - 960 * 75 * (1 - Math.exp(-t / 75));
   for (let t = 0; t <= 600; t += 1) {
     const got = timeAtDistance(D(t));
     assert.ok(Math.abs(got - t) < 1e-6, `at t=${t}: got ${got}`);

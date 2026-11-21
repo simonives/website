@@ -211,11 +211,11 @@ test('a wall hit at 400 never leaves the rider below the ground', () => {
   }
 });
 
-test('a 14-unit riser is a wall at speed 1180 and at 640', () => {
+test('a 14-unit riser is a wall at speed 1700 and at 640', () => {
   assert.equal(STEP_UP, 12);
   const riser14 = { kind: 'ledge', x: 1000, width: 200, height: 14, steps: 0 };
   const g = groundOf([riser14]);
-  for (const speed of [640, 1180]) {
+  for (const speed of [640, 1700]) {
     let r = riderAt(g, 980);
     let hit = null;
     for (let i = 0; i < 10 && !hit; i++) {
@@ -228,10 +228,10 @@ test('a 14-unit riser is a wall at speed 1180 and at 640', () => {
   }
 });
 
-test('terrain and a 0.5-slope ramp never trigger a wall at speed 1200', () => {
+test('terrain and a 0.5-slope ramp never trigger a wall at speed 1700', () => {
   let r = createRider();
   for (let i = 0; i < 400; i++) {
-    r = stepRider(r, { ollieDown: false }, DT60, 1200);
+    r = stepRider(r, { ollieDown: false }, DT60, 1700);
     assert.equal(r.hit, null, `terrain wall hit at step ${i} x=${r.x}`);
     assert.equal(r.grounded, true, `terrain ungrounded at step ${i} x=${r.x}`);
   }
@@ -239,7 +239,7 @@ test('terrain and a 0.5-slope ramp never trigger a wall at speed 1200', () => {
   for (const g of [groundOf([steepRamp]), createGround([steepRamp])]) {
     let rr = riderAt(g, 710);
     for (let i = 0; i < 15 && rr.x < steepRamp.x + steepRamp.width; i++) {
-      rr = stepRider(rr, { ollieDown: false }, DT60, 1200, g);
+      rr = stepRider(rr, { ollieDown: false }, DT60, 1700, g);
       assert.equal(rr.hit, null, `ramp wall hit at step ${i} x=${rr.x}`);
     }
   }
@@ -347,7 +347,7 @@ test('a rider passing under a rail from the ground is not lifted onto it', () =>
   assert.ok(landedOnRail, 'rider should rise through the rail and land on top');
 });
 
-test('no step ever leaves the rider below the ground over 1000 deterministic pseudo-random starts at speeds 640 to 1200 across 40 mixed obstacles', () => {
+test('no step ever leaves the rider below the ground over 1000 deterministic pseudo-random starts at speeds 640 to 1700 across 40 mixed obstacles', () => {
   const obs = placeObstacles(PHRASES, 0, 50000).slice(0, 40);
   assert.equal(obs.length, 40);
   const g = createGround(obs);
@@ -356,7 +356,7 @@ test('no step ever leaves the rider below the ground over 1000 deterministic pse
   const rnd = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
   for (let run = 0; run < 1000; run++) {
     const startX = obs[0].x - 200 + rnd() * (maxX - obs[0].x);
-    const speed = 640 + rnd() * 560;
+    const speed = 640 + rnd() * 1060;
     const baseY = g.height(startX, -Infinity);
     let r = rnd() < 0.5
       ? { ...createRider(), x: startX, y: baseY, grounded: true, vg: 0, angle: 0 }
