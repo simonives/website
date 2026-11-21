@@ -1060,3 +1060,56 @@ body.no-scroll { overflow: hidden; }
   .dropcap::first-letter { font-size: 58px; margin-right: 10px; }
   .quote-band .container { flex-direction: column; gap: var(--space-4); }
 }
+
+/* ============================================================
+   Skate link: returns to the homepage game. Static on inner pages,
+   injected by home-game.js on the homepage.
+   ============================================================ */
+.skate-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-shape-full);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  letter-spacing: .01em;
+  color: var(--md-sys-color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color var(--md-motion-short) var(--md-motion-standard),
+              color var(--md-motion-short) var(--md-motion-standard);
+}
+.skate-link:hover {
+  background: rgba(var(--md-state-rgb), var(--md-state-hover));
+  color: var(--md-sys-color-primary);
+  opacity: 1;
+}
+.skate-link:active {
+  background: rgba(var(--md-state-rgb), var(--md-state-pressed));
+}
+@media (max-width: 1024px) {
+  .site-header nav.container {
+    gap: var(--space-3);
+  }
+  .skate-link {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+.skate-closing {
+  margin: var(--space-8, 3rem) auto 0;
+  text-align: center;
+  font-family: var(--font-body);
+}
+.skate-closing a {
+  color: var(--md-sys-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skate-link { transition: none; }
+}

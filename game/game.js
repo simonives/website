@@ -1,6 +1,6 @@
 import { PHRASES } from './content.js';
 import { createRider, stepRider } from './lib/physics.js';
-import { createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
+import { TRICK_NAMES, createTrickState, airPress, airRelease, startTrick, endGrab, stepTrick, judgeLanding } from './lib/tricks.js';
 import { createGround } from './lib/ground.js';
 import { lightNearest } from './lib/obstacles.js';
 import { extend, relay } from './lib/feed.js';
@@ -21,6 +21,7 @@ const SLOW_SECONDS = 0.6;
 
 export function mountSkateGame(canvas, options = {}) {
   const phrases = options.phrases || PHRASES;
+  const rng = options.rng || Math.random;
   const root = canvas.parentElement;
   const mq = globalThis.matchMedia ? globalThis.matchMedia('(prefers-reduced-motion: reduce)') : null;
   const opts = { reducedMotion: options.reducedMotion ?? !!(mq && mq.matches) };
@@ -31,7 +32,10 @@ export function mountSkateGame(canvas, options = {}) {
   canvas.setAttribute('tabindex', '0');
   canvas.setAttribute('role', 'application');
   canvas.setAttribute('aria-roledescription', 'game');
-  canvas.setAttribute('aria-label', 'Skateboard game. Press Space or Up Arrow to ollie. Press again in the air to flip, hold the second press to grab, press a third time to spin. Left Arrow or Z flips, Right Arrow or X spins, Down Arrow or C grabs. P pauses, M toggles sound. There is no way to fail.');
+  canvas.setAttribute(
+    'aria-label',
+    `Skateboard game. Press Space or Up Arrow to ollie. Tap again in the air for a trick, hold to ${TRICK_NAMES.grab.toLowerCase()}, press again for a ${TRICK_NAMES.shoveit.toLowerCase()}. Left Arrow or Z for ${TRICK_NAMES.kickflip}, Right Arrow or X for ${TRICK_NAMES.shoveit}, Down Arrow or C for ${TRICK_NAMES.grab}, V for ${TRICK_NAMES.grind}. P pauses, M toggles sound. There is no way to fail.`,
+  );
 
   const s = {
     rider: createRider(),
@@ -54,6 +58,7 @@ export function mountSkateGame(canvas, options = {}) {
   const why = { user: !!opts.reducedMotion, hidden: false, offscreen: false };
   let loop = createLoop();
   let raf = 0;
+  let grabTimer = 0;
   let destroyed = false;
 
   // ----- controls -----
@@ -76,21 +81,30 @@ export function mountSkateGame(canvas, options = {}) {
     s.auto = !s.auto;
     autoBtn.setAttribute('aria-pressed', String(s.auto));
   }, false);
-  button('Flip', () => doTrick('kickflip'));
-  const grabBtn = button('Grab', (e) => {
+  const motionBtn = button('Calm motion', () => {
+    applyMotion(!opts.reducedMotion, { fromSystem: false });
+  }, opts.reducedMotion);
+  button(TRICK_NAMES.kickflip, () => doTrick('kickflip'));
+  button(TRICK_NAMES.shoveit, () => doTrick('shoveit'));
+  const grabBtn = button(TRICK_NAMES.grab, (e) => {
     // A keyboard activation has no press and release, so it grabs for a moment.
     if (e.detail === 0) {
       doTrick('grab');
-      setTimeout(releaseGrab, 450);
+      clearTimeout(grabTimer);
+      grabTimer = setTimeout(() => {
+        grabTimer = 0;
+        releaseGrab();
+      }, 450);
     }
   });
-  button('Spin', () => doTrick('shoveit'));
+  button(TRICK_NAMES.grind, () => doTrick('grind'));
   grabBtn.addEventListener('pointerdown', () => doTrick('grab'));
-  for (const t of ['pointerup', 'pointercancel', 'pointerleave']) grabBtn.addEventListener(t, releaseGrab);
+  for (const t of ['pointerup', 'pointercancel', 'pointerleave', 'blur']) grabBtn.addEventListener(t, releaseGrab);
   canvas.after(controls);
 
   function syncButtons() {
     pauseBtn.textContent = why.user ? 'Resume' : 'Pause';
+    motionBtn.setAttribute('aria-pressed', String(opts.reducedMotion));
   }
 
   // ----- helpers -----
@@ -124,9 +138,14 @@ export function mountSkateGame(canvas, options = {}) {
       soundBtn.textContent = 'Sound off';
       soundBtn.setAttribute('aria-pressed', 'false');
     } else if (await audio.enable()) {
+      if (destroyed) {
+        audio.disable();
+        return;
+      }
       soundBtn.textContent = 'Sound on';
       soundBtn.setAttribute('aria-pressed', 'true');
-    } else a11y.announce('Sound is not available in this browser.');
+      if (!running()) audio.suspend();
+    } else if (!destroyed) a11y.announce('Sound is not available in this browser.');
   }
 
   function doTrick(kind) {
@@ -135,15 +154,28 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   function releaseGrab() {
+    if (grabTimer) {
+      clearTimeout(grabTimer);
+      grabTimer = 0;
+    }
     s.trick = endGrab(s.trick);
+  }
+
+  function overGrindable() {
+    const surf = s.ground.surface(s.rider.x, s.rider.y);
+    return surf === 'rail' || surf === 'ledge';
   }
 
   function control(down) {
     if (down && !running() && why.user) setUserPaused(false);
-    if (down) s.press.press();
-    else s.press.release();
-    if (!running()) return;
-    s.trick = down ? airPress(s.trick, airborne()) : airRelease(s.trick);
+    if (down) {
+      s.press.press();
+      if (!running()) return;
+      s.trick = airPress(s.trick, airborne());
+    } else {
+      s.press.release();
+      s.trick = airRelease(s.trick, rng, overGrindable());
+    }
   }
 
   function rebuildGround() {
@@ -159,14 +191,14 @@ export function mountSkateGame(canvas, options = {}) {
   }
 
   function landed(angle) {
-    const j = judgeLanding(s.trick, angle, Math.atan(s.ground.slope(s.rider.x)));
+    const j = judgeLanding(s.trick, angle, Math.atan(s.ground.slope(s.rider.x)), s.rider.grinding);
     s.trick = j.trickState;
     audio.land();
     if (!j.clean) return;
     if (options.onTrick) options.onTrick({ trick: j.trick, streak: s.trick.streak });
     const ob = lightNearest(s.obstacles, s.rider.x);
     if (!ob) {
-      if (!s.auto) a11y.announce(`Clean ${j.trick === 'kickflip' ? 'flip' : j.trick === 'shoveit' ? 'spin' : 'grab'}.`);
+      if (!s.auto) a11y.announce(`Clean ${TRICK_NAMES[j.trick].toLowerCase()}.`);
       return;
     }
     s.caption = ob.sentence;
@@ -180,13 +212,14 @@ export function mountSkateGame(canvas, options = {}) {
   function step() {
     s.simT += STEP;
     const speed = speedAt(s.rideT, opts.reducedMotion) * (s.simT < s.slowUntil ? SLOW : 1);
-    let ollieDown = s.press.take();
+    let ollieDown = s.press.take(s.rider.grounded);
     if (s.auto) {
       const a = autoInput({ rider: s.rider, obstacles: s.obstacles, speed });
       ollieDown = a.ollieDown;
       if (a.trick && !s.trick.attempted) s.trick = startTrick(s.trick, a.trick, airborne());
     }
     const wasGrounded = s.rider.grounded;
+    const wasHeld = s.rider.ollieHeld;
     const prevAngle = s.rider.angle;
     s.rider = stepRider(s.rider, { ollieDown }, STEP, speed, s.ground);
     if (s.rider.ollied) {
@@ -197,6 +230,7 @@ export function mountSkateGame(canvas, options = {}) {
     }
     const hit = s.rider.hit === 'wall';
     if (hit) {
+      if (!s.auto && wasGrounded && ollieDown && !wasHeld) s.press.requeue();
       s.slowUntil = s.simT + SLOW_SECONDS;
       audio.land();
     }
@@ -206,7 +240,7 @@ export function mountSkateGame(canvas, options = {}) {
     if (s.caption && s.simT > s.captionUntil) s.caption = null;
     extendObstacles(s.rider.x);
     s.cameraY += (Math.max(0, s.rider.y - 80) - s.cameraY) * 0.1;
-    audio.setSpeed(speed / 330);
+    audio.setSpeed(speed / 640);
   }
 
   function render() {
@@ -249,9 +283,9 @@ export function mountSkateGame(canvas, options = {}) {
   if (io) io.observe(canvas);
   const ro = 'ResizeObserver' in globalThis ? new ResizeObserver(() => { renderer.resize(); if (!running()) render(); }) : null;
   if (ro) ro.observe(canvas);
-  const onMotion = (e) => {
-    opts.reducedMotion = e.matches;
-    if (e.matches) why.user = true;
+  function applyMotion(reduced, { fromSystem } = {}) {
+    opts.reducedMotion = !!reduced;
+    if (fromSystem && opts.reducedMotion) why.user = true;
     // Re-lay the obstacles ahead of the rider with the new difficulty setting.
     const n = relay({ obstacles: s.obstacles, genTo: s.genTo }, s.rider.x, phrases, opts.reducedMotion);
     s.obstacles = n.obstacles;
@@ -259,7 +293,10 @@ export function mountSkateGame(canvas, options = {}) {
     rebuildGround();
     syncButtons();
     refresh();
-  };
+    a11y.announce(opts.reducedMotion ? 'Calm motion on.' : 'Full motion on.');
+  }
+
+  const onMotion = (e) => applyMotion(e.matches, { fromSystem: true });
   if (mq && mq.addEventListener) mq.addEventListener('change', onMotion);
 
   renderer.resize();
@@ -269,9 +306,12 @@ export function mountSkateGame(canvas, options = {}) {
   return {
     pause() { setUserPaused(true); },
     resume() { setUserPaused(false); },
+    isPaused() { return why.user; },
     destroy() {
       destroyed = true;
       cancelAnimationFrame(raf);
+      clearTimeout(grabTimer);
+      grabTimer = 0;
       detachInput();
       document.removeEventListener('visibilitychange', onVisibility);
       if (io) io.disconnect();
@@ -283,6 +323,3 @@ export function mountSkateGame(canvas, options = {}) {
     },
   };
 }
-
-const el = document.getElementById('skate');
-if (el) mountSkateGame(el);

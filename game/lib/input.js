@@ -27,7 +27,7 @@ export function attachInput(canvas, handlers) {
     else if (action === 'grab') {
       if (grabKeys.size === 0) handlers.trick('grab');
       grabKeys.add(e.code);
-    } else if (action === 'kickflip' || action === 'shoveit') handlers.trick(action);
+    } else if (action === 'kickflip' || action === 'shoveit' || action === 'grind') handlers.trick(action);
     else if (action === 'pause') handlers.pause();
     else if (action === 'mute') handlers.mute();
   }

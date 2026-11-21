@@ -1,25 +1,50 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { speedAt, windBack, advanceClock } from '../lib/difficulty.js';
+import { speedAt, timeAtDistance, windBack, advanceClock } from '../lib/difficulty.js';
 
-test('speed starts at 330 (50% above the old 220) and rises strictly', () => {
-  assert.equal(speedAt(0, false), 330);
+test('speed starts at 640 and rises strictly', () => {
+  assert.equal(speedAt(0, false), 640);
   let prev = 0;
-  for (const t of [0, 60, 120, 300]) {
+  for (const t of [0, 10, 60, 75, 120, 300, 600]) {
     const v = speedAt(t, false);
-    assert.ok(v > prev);
+    assert.ok(v > prev, `expected speedAt(${t})=${v} > ${prev}`);
     prev = v;
   }
 });
 
-test('speed at two minutes is about 520 and stays under 630 for a 30 minute ride', () => {
-  assert.ok(Math.abs(speedAt(120, false) - 519.6) < 1);
-  assert.ok(speedAt(1800, false) < 630);
+test('speed at 75 s is about 1247 and approaches 1600 (within 1590 to 1600 at t = 1e6)', () => {
+  const at75 = speedAt(75, false);
+  assert.ok(Math.abs(at75 - 1246.8) < 1, `speedAt(75) was ${at75}`);
+  const ceil = speedAt(1e6, false);
+  assert.ok(ceil >= 1590 && ceil <= 1600, `speedAt(1e6) was ${ceil}`);
 });
 
-test('reduced motion holds 110 whatever the time', () => {
-  assert.equal(speedAt(0, true), 110);
-  assert.equal(speedAt(500, true), 110);
+test('full pace unchanged at 640 at t=0', () => {
+  assert.equal(speedAt(0, false), 640);
+  assert.equal(speedAt(75, false), 1600 - 960 * Math.exp(-1));
+});
+
+test('reduced pace is 300', () => {
+  assert.equal(speedAt(0, true), 300);
+  assert.equal(speedAt(500, true), 300);
+});
+
+test('timeAtDistance inverts the ride distance (for t in 0..600, timeAtDistance(D(t)) is within 1e-6 of t)', () => {
+  const D = (t) => 1600 * t - 960 * 75 * (1 - Math.exp(-t / 75));
+  for (let t = 0; t <= 600; t += 1) {
+    const got = timeAtDistance(D(t));
+    assert.ok(Math.abs(got - t) < 1e-6, `at t=${t}: got ${got}`);
+  }
+  for (const t of [0.1, 0.5, 12.34, 75.5, 250.25, 599.9]) {
+    const got = timeAtDistance(D(t));
+    assert.ok(Math.abs(got - t) < 1e-6, `at t=${t}: got ${got}`);
+  }
+});
+
+test('timeAtDistance(0) is 0 and negative gives 0', () => {
+  assert.equal(timeAtDistance(0), 0);
+  assert.equal(timeAtDistance(-1), 0);
+  assert.equal(timeAtDistance(-10000), 0);
 });
 
 test('windBack takes 8 seconds off and never goes below 0', () => {

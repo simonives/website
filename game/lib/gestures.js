@@ -8,6 +8,7 @@ const KEYS = {
   KeyX: 'shoveit',
   ArrowDown: 'grab',
   KeyC: 'grab',
+  KeyV: 'grind',
   KeyP: 'pause',
   KeyM: 'mute',
 };

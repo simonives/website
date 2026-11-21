@@ -110,3 +110,13 @@ test('blur releases a held control', () => {
   c.dispatchEvent(ev('blur'));
   assert.deepEqual(of('control'), [['control', true], ['control', false]]);
 });
+
+test('KeyV maps to grind and calls handlers.trick with grind', () => {
+  const { c, calls } = setup();
+  const down = ev('keydown', { code: 'KeyV' });
+  c.dispatchEvent(down);
+  assert.equal(down.defaultPrevented, true);
+  c.dispatchEvent(ev('keydown', { code: 'KeyV', repeat: true }));
+  c.dispatchEvent(ev('keyup', { code: 'KeyV' }));
+  assert.deepEqual(calls, [['trick', 'grind']]);
+});

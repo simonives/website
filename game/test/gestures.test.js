@@ -11,6 +11,7 @@ test('key map', () => {
   assert.equal(keyAction('KeyX'), 'shoveit');
   assert.equal(keyAction('ArrowDown'), 'grab');
   assert.equal(keyAction('KeyC'), 'grab');
+  assert.equal(keyAction('KeyV'), 'grind');
   assert.equal(keyAction('KeyP'), 'pause');
   assert.equal(keyAction('KeyM'), 'mute');
   assert.equal(keyAction('KeyQ'), null);

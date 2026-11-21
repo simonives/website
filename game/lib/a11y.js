@@ -13,13 +13,17 @@ export function createA11y(root, phrases) {
   live.setAttribute('role', 'status');
   live.setAttribute('aria-live', 'polite');
   root.append(list, live);
+  let timer = 0;
   return {
     announce(msg) {
+      clearTimeout(timer);
       live.textContent = '';
       // A fresh text node each time makes repeated messages announce again.
-      setTimeout(() => { live.textContent = msg; }, 30);
+      timer = setTimeout(() => { timer = 0; live.textContent = msg; }, 30);
     },
     destroy() {
+      clearTimeout(timer);
+      timer = 0;
       list.remove();
       live.remove();
     },
