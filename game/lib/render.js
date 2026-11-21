@@ -140,8 +140,9 @@ export function createRenderer(canvas, opts = {}) {
       ctx.beginPath();
       for (let wx = x0; ; wx = Math.min(wx + 4, x1)) {
         const top = ground.height(wx);
-        hi = Math.max(hi, top);
-        lo = Math.min(lo, terrainHeight(wx));
+        const base = terrainHeight(wx);
+        hi = Math.max(hi, top, base);
+        lo = Math.min(lo, top, base);
         if (wx === x0) ctx.moveTo(toX(wx), toY(top));
         else ctx.lineTo(toX(wx), toY(top));
         if (wx >= x1) break;

@@ -76,3 +76,76 @@ test('risers: stairs have a front, a platform edge, and one per tread boundary',
   assert.ok(Math.abs(r.at(-1).to - 8) < 1e-9);
   for (const k of r) assert.ok(k.to > k.from);
 });
+
+const drop = { kind: 'drop', x: 1000, width: 250, height: 55, steps: 0 };
+const rail = { kind: 'rail', x: 2000, width: 200, height: 26, steps: 0 };
+const gap = { kind: 'gap', x: 3000, width: 240, height: 32, steps: 0 };
+
+test('drop holds its height', () => {
+  assert.equal(offsetAt(drop, 1000), 55);
+  assert.equal(offsetAt(drop, 1125), 55);
+  assert.equal(offsetAt(drop, 1250), 55);
+  assert.equal(offsetAt(drop, 999), 0);
+  assert.equal(offsetAt(drop, 1251), 0);
+  assert.equal(offsetSlope(drop, 1100), 0);
+  assert.deepEqual(risers(drop), [{ x: 1000, from: 0, to: 55 }, { x: 1250, from: 0, to: 55 }]);
+  const g = createGround([drop]);
+  assert.ok(Math.abs(g.height(1100) - (height(1100) + 55)) < 1e-9);
+});
+
+test('gap lowers the ground by its depth across its span and is 0 outside', () => {
+  assert.equal(offsetAt(gap, 2999), 0);
+  assert.equal(offsetAt(gap, 3000), -32);
+  assert.equal(offsetAt(gap, 3120), -32);
+  assert.equal(offsetAt(gap, 3239.9), -32);
+  assert.equal(offsetAt(gap, 3240), 0);
+  assert.equal(offsetAt(gap, 3241), 0);
+  assert.equal(offsetSlope(gap, 3100), 0);
+  assert.deepEqual(risers(gap), [{ x: 3000, from: 0, to: -32 }, { x: 3240, from: -32, to: 0 }]);
+  const g = createGround([gap]);
+  assert.ok(Math.abs(g.height(3100) - (height(3100) - 32)) < 1e-9);
+  assert.ok(Math.abs(g.height(3240) - height(3240)) < 1e-9);
+});
+
+test('rail is ground only from above: height(x, lowY) is terrain, height(x, highY) is terrain + bar height', () => {
+  const g = createGround([rail]);
+  const x = 2100;
+  const base = height(x);
+  assert.ok(Math.abs(g.height(x, base) - base) < 1e-9);
+  assert.ok(Math.abs(g.height(x, base + rail.height - 2.1) - base) < 1e-9);
+  assert.ok(Math.abs(g.height(x, base + rail.height - 2) - (base + rail.height)) < 1e-9);
+  assert.ok(Math.abs(g.height(x, base + rail.height + 20) - (base + rail.height)) < 1e-9);
+  assert.equal(offsetSlope(rail, x), 0);
+  assert.deepEqual(risers(rail), []);
+});
+
+test('surface reports rail, ledge, ground', () => {
+  const obs = [
+    { ...ramp, x: 500 },
+    { ...ledge, x: 1000 },
+    { ...stairs, x: 1500 },
+    { ...drop, x: 2200 },
+    { ...rail, x: 2700 },
+    { ...gap, x: 3200 },
+  ];
+  const g = createGround(obs);
+  assert.equal(g.surface(100), 'ground');
+  assert.equal(g.surface(600), 'ground');
+  assert.equal(g.surface(1100), 'ledge');
+  assert.equal(g.surface(1600), 'ground');
+  assert.equal(g.surface(2300), 'ledge');
+  assert.equal(g.surface(2800, height(2800) + rail.height), 'rail');
+  assert.equal(g.surface(2800, height(2800)), 'ground');
+  assert.equal(g.surface(2800), 'rail');
+  assert.equal(g.surface(3300), 'ground');
+});
+
+test('height and slope with one argument behave as before', () => {
+  const g = createGround([ledge, { ...ramp, x: 3000 }, { ...rail, x: 4000 }]);
+  assert.ok(Math.abs(g.height(1100) - (height(1100) + 20)) < 1e-9);
+  assert.ok(Math.abs(g.slope(1100) - slope(1100)) < 1e-9);
+  assert.ok(Math.abs(g.height(3100) - (height(3100) + 25)) < 1e-9);
+  assert.ok(Math.abs(g.slope(3100) - (slope(3100) + 0.25)) < 1e-9);
+  assert.ok(Math.abs(g.height(4100) - (height(4100) + 26)) < 1e-9);
+  assert.ok(Math.abs(g.slope(4100) - slope(4100)) < 1e-9);
+});

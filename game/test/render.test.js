@@ -139,3 +139,21 @@ test('a 0 by 0 canvas does not throw and draws nothing', () => {
   r.draw(frame());
   assert.equal(c.ctx.calls.length, 0);
 });
+
+test('draws all six obstacle kinds without throwing', () => {
+  const c = stubCanvas(1200, 400);
+  const r = createRenderer(c, { reducedMotion: false });
+  r.resize();
+  const obs = [
+    { kind: 'ramp', id: 'a', label: 'Ramp one', sentence: '', x: 100, width: 160, height: 40, steps: 0, lit: false },
+    { kind: 'ledge', id: 'b', label: 'Ledge two', sentence: '', x: 350, width: 140, height: 24, steps: 0, lit: false },
+    { kind: 'stairs', id: 'c', label: 'Stairs three', sentence: '', x: 600, width: 200, height: 40, steps: 4, lit: false },
+    { kind: 'drop', id: 'd', label: 'Drop four', sentence: '', x: 900, width: 220, height: 55, steps: 0, lit: false },
+    { kind: 'rail', id: 'e', label: 'Rail five', sentence: '', x: 1200, width: 180, height: 26, steps: 0, lit: false },
+    { kind: 'gap', id: 'f', label: 'Gap six', sentence: '', x: 1500, width: 200, height: 32, steps: 0, lit: false },
+  ];
+  for (const cameraX of [150, 700, 1300, 1600]) {
+    r.draw(frame({ obstacles: obs, cameraX }));
+  }
+  assert.ok(c.ctx.calls.length > 50);
+});
