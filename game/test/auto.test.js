@@ -4,7 +4,7 @@ import { autoInput } from '../lib/auto.js';
 import { placeObstacles } from '../lib/obstacles.js';
 import { createGround } from '../lib/ground.js';
 import { createRider, stepRider } from '../lib/physics.js';
-import { speedAt } from '../lib/difficulty.js';
+import { speedAt, advanceClock } from '../lib/difficulty.js';
 import { PHRASES } from '../content.js';
 
 const ob = (kind, x, width = 200) => ({ kind, id: 'abc', label: 'L', sentence: '', x, width, height: 20, steps: 0, lit: false });
@@ -74,4 +74,26 @@ test('auto-ride over 120 simulated seconds through the real obstacle sequence ha
     assert.ok(rider.y >= ground.height(rider.x, -Infinity) - 1e-9, `below solid ground at step ${i}`);
   }
   assert.ok(rider.x > 40000, `rider only reached ${rider.x}`);
+});
+
+test('auto-ride survives 300 simulated seconds at the real speed ramp with no NaN, never below the ground and x strictly advancing', () => {
+  const dt = 1 / 60;
+  const steps = 300 * 60;
+  const obstacles = placeObstacles(PHRASES, 0, 360000);
+  const ground = createGround(obstacles);
+  let rider = createRider();
+  let rideT = 0;
+  for (let i = 0; i < steps; i++) {
+    const speed = speedAt(rideT, false);
+    const input = autoInput({ rider, obstacles, speed });
+    const prevX = rider.x;
+    const prevY = rider.y;
+    rider = stepRider(rider, input, dt, speed, ground);
+    rideT = advanceClock(rideT, dt, true, rider.hit === 'wall');
+    assert.ok(Number.isFinite(rider.x) && Number.isFinite(rider.y) && Number.isFinite(rider.vy) && Number.isFinite(rider.angle), `NaN at step ${i}`);
+    assert.ok(rider.x > prevX, `x failed to advance at step ${i}: ${prevX} -> ${rider.x}`);
+    assert.ok(rider.y >= ground.height(rider.x, prevY) - 1e-9, `below active ground at step ${i}`);
+    assert.ok(rider.y >= ground.height(rider.x, -Infinity) - 1e-9, `below solid ground at step ${i}`);
+  }
+  assert.ok(rider.x > 200000, `rider only reached ${rider.x}`);
 });

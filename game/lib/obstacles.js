@@ -1,3 +1,5 @@
+import { speedAt, timeAtDistance } from './difficulty.js';
+
 export const CHAR_W = 14; // world units per label character
 const START = 800;
 const LOOKAHEAD = 600;
@@ -30,12 +32,14 @@ function pickKind(k, kk) {
   return 'stairs';
 }
 
-function gapAfter(k, kk, prevKind, nextKind) {
+function gapAfter(k, kk, prevKind, nextKind, xEnd, flat) {
   if (prevKind === 'ramp' && nextKind === 'gap') {
     return 120 + (hash(k + 7919) % 61);
   }
   const jitter = (hash(k + 7919) % 81) - 40;
-  return Math.max(260, 520 - 8 * kk) + jitter;
+  const base = Math.max(392, 520 - 8 * kk);
+  const v = speedAt(timeAtDistance(xEnd), flat);
+  return Math.max(base, 0.8 * v) + jitter;
 }
 
 function pickInRange(h, min, max) {
@@ -93,7 +97,8 @@ export function placeObstacles(phrases, fromX, toX, opts = {}) {
     if (ob.x >= fromX) out.push(ob);
     const kk = flat ? 0 : k;
     const nextKind = pickKind(k + 1, flat ? 0 : k + 1);
-    x = ob.x + ob.width + gapAfter(k, kk, ob.kind, nextKind);
+    const xEnd = ob.x + ob.width;
+    x = xEnd + gapAfter(k, kk, ob.kind, nextKind, xEnd, flat);
   }
   return out;
 }

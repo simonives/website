@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { placeObstacles, lightNearest, CHAR_W } from '../lib/obstacles.js';
+import { speedAt, timeAtDistance } from '../lib/difficulty.js';
 import { PHRASES } from '../content.js';
 
 const far = 60000;
@@ -19,10 +20,37 @@ test('obstacles are sorted, keep clear ground between them, and start at 800', (
   assert.ok(obs.length > 40);
   assert.equal(obs[0].x, 800);
   for (let i = 1; i < obs.length; i++) {
-    const clear = obs[i].x - (obs[i - 1].x + obs[i - 1].width);
-    const minClear = obs[i - 1].kind === 'ramp' && obs[i].kind === 'gap' ? 120 : 220;
-    assert.ok(clear >= minClear, `gap before ${i}: ${clear} < ${minClear}`);
+    const xEnd = obs[i - 1].x + obs[i - 1].width;
+    const clear = obs[i].x - xEnd;
+    if (obs[i - 1].kind === 'ramp' && obs[i].kind === 'gap') {
+      assert.ok(clear >= 120, `combo gap before ${i}: ${clear} < 120`);
+    } else {
+      assert.ok(clear >= 352, `gap before ${i}: ${clear} < 352`);
+      const speedMin = 0.8 * speedAt(timeAtDistance(xEnd), false) - 40;
+      assert.ok(clear >= speedMin - 1e-9, `gap before ${i}: ${clear} < ${speedMin}`);
+    }
   }
+});
+
+test('at the speed in force at each obstacle, clear ground lasts at least 0.55 s at 640 and at least 0.3 s at the ceiling', () => {
+  const obs = placeObstacles(PHRASES, 0, far * 8);
+  let earlyChecked = 0;
+  let ceilingChecked = 0;
+  for (let i = 1; i < obs.length; i++) {
+    if (obs[i - 1].kind === 'ramp' && obs[i].kind === 'gap') continue;
+    const xEnd = obs[i - 1].x + obs[i - 1].width;
+    const clear = obs[i].x - xEnd;
+    const v = speedAt(timeAtDistance(xEnd), false);
+    const seconds = clear / v;
+    assert.ok(seconds >= 0.3, `clear time before ${i}: ${seconds} s < 0.3 s at v=${v}`);
+    if (obs[i - 1].x < 4000) {
+      assert.ok(seconds >= 0.55, `early clear time before ${i}: ${seconds} s < 0.55 s at v=${v}`);
+      earlyChecked++;
+    }
+    if (v >= 1170) ceilingChecked++;
+  }
+  assert.ok(earlyChecked > 0, 'expected pairs in the first 4000 units');
+  assert.ok(ceilingChecked > 0, 'expected pairs near the ceiling speed');
 });
 
 test('heights, widths and steps stay in the ranges above for every kind', () => {
@@ -111,11 +139,11 @@ test('labels come from the phrase list, label-based widths match CHAR_W, start u
   }
 });
 
-test('difficulty rises: later obstacles have less clear ground between them', () => {
+test('spacing scales with speed: later obstacles have more clear ground between them', () => {
   const obs = placeObstacles(PHRASES, 0, far * 4);
   const gap = (i) => obs[i].x - (obs[i - 1].x + obs[i - 1].width);
   const avg = (a, b) => { let s = 0; for (let i = a; i < b; i++) s += gap(i); return s / (b - a); };
-  assert.ok(avg(30, 40) < avg(1, 10) - 100, `${avg(30, 40)} vs ${avg(1, 10)}`);
+  assert.ok(avg(30, 40) > avg(1, 10) + 100, `${avg(30, 40)} vs ${avg(1, 10)}`);
 });
 
 test('flat mode keeps gaps near 520 and heights at their starting values', () => {
