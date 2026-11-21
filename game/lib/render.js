@@ -1,5 +1,5 @@
-import { height as terrainHeight } from './terrain.js';
-import { createGround } from './ground.js';
+import { height as terrainHeight, slope as terrainSlope } from './terrain.js';
+import { createGround, risers } from './ground.js';
 import { groundLine } from './layout.js';
 
 const FONT = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
@@ -16,6 +16,14 @@ const ROW_U = 5.5; // spacing between texture rows
 // Distant silhouette height above the baseline, in world units.
 function silhouette(wx, amp, phase) {
   return amp * (0.55 + 0.45 * Math.sin(wx * 0.004 + phase)) + amp * 0.25 * Math.sin(wx * 0.013 + phase * 2);
+}
+
+// Deterministic pseudo-random float in [0, 1) for reproducible grind sparks.
+function sparkRand(seed) {
+  let h = Math.imul((seed | 0) + 1, 2654435761) >>> 0;
+  h ^= h >>> 15;
+  h = Math.imul(h, 2246822519) >>> 0;
+  return ((h ^ (h >>> 13)) >>> 0) / 4294967296;
 }
 
 export function createRenderer(canvas, opts = {}) {
@@ -103,17 +111,17 @@ export function createRenderer(canvas, opts = {}) {
       ctx.fill();
     }
 
-    // Ground fill and line (terrain plus obstacle offsets).
+    // Ground fill and line (terrain plus non-rail obstacle offsets).
     ctx.beginPath();
     ctx.moveTo(0, h);
-    for (let sx = 0; sx <= w + 4; sx += 4) ctx.lineTo(sx, toY(ground.height(fromX(sx))));
+    for (let sx = 0; sx <= w + 4; sx += 4) ctx.lineTo(sx, toY(ground.height(fromX(sx), -Infinity)));
     ctx.lineTo(w, h);
     ctx.closePath();
     ctx.fillStyle = T.ground;
     ctx.fill();
     ctx.beginPath();
     for (let sx = 0; sx <= w + 4; sx += 4) {
-      const y = toY(ground.height(fromX(sx)));
+      const y = toY(ground.height(fromX(sx), -Infinity));
       if (sx === 0) ctx.moveTo(sx, y);
       else ctx.lineTo(sx, y);
     }
@@ -122,8 +130,8 @@ export function createRenderer(canvas, opts = {}) {
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Obstacles are blocks of tiny repeating text, clipped to the obstacle's outline, so a ledge is
-    // a slab, a ramp a wedge and stairs a staircase. The surface line is a row of letters turned to the slope.
+    // Obstacles: gaps show pit faces only, rails are bars on posts with letters along the rail,
+    // and ramp/ledge/drop/stairs are blocks of tiny repeating text clipped to their silhouette.
     const glyph = Math.max(6, TEXT_U * sc);
     ctx.font = `bold ${glyph}px ${FONT}`;
     ctx.textAlign = 'left';
@@ -131,15 +139,66 @@ export function createRenderer(canvas, opts = {}) {
     const cw = ctx.measureText('M').width || glyph * 0.6;
     for (const o of f.obstacles) {
       if (toX(o.x + o.width) < -20 || toX(o.x) > w + 20) continue;
-      ctx.fillStyle = o.lit ? P.textLit : P.text;
       const x0 = Math.max(o.x, fromX(-20));
       const x1 = Math.min(o.x + o.width, fromX(w + 20));
+      if (x1 <= x0) continue;
+
+      if (o.kind === 'gap') {
+        ctx.strokeStyle = P.board;
+        ctx.lineWidth = LINE * 0.6;
+        for (const face of risers(o)) {
+          const sx = toX(face.x);
+          const base = terrainHeight(face.x);
+          ctx.beginPath();
+          ctx.moveTo(sx, toY(base + face.from));
+          ctx.lineTo(sx, toY(base + face.to));
+          ctx.stroke();
+        }
+        continue;
+      }
+
+      if (o.kind === 'rail') {
+        const posts = o.width > 200 ? [o.x, o.x + o.width / 2, o.x + o.width] : [o.x, o.x + o.width];
+        ctx.strokeStyle = P.board;
+        ctx.lineWidth = LINE * 0.8;
+        for (const px of posts) {
+          const sx = toX(px);
+          const base = terrainHeight(px);
+          ctx.beginPath();
+          ctx.moveTo(sx, toY(base + o.height));
+          ctx.lineTo(sx, toY(base));
+          ctx.stroke();
+        }
+        ctx.strokeStyle = P.board;
+        ctx.lineWidth = LINE;
+        ctx.beginPath();
+        for (let wx = x0; ; wx = Math.min(wx + 4, x1)) {
+          const y = toY(terrainHeight(wx) + o.height);
+          if (wx === x0) ctx.moveTo(toX(wx), y);
+          else ctx.lineTo(toX(wx), y);
+          if (wx >= x1) break;
+        }
+        ctx.stroke();
+        ctx.fillStyle = o.lit ? P.textLit : P.text;
+        ctx.textAlign = 'center';
+        for (let wx = o.x + 2 + 5 * Math.ceil((x0 - o.x - 2) / 5); wx < x1; wx += 5) {
+          ctx.save();
+          ctx.translate(toX(wx), toY(terrainHeight(wx) + o.height));
+          ctx.rotate(-Math.atan(terrainSlope(wx)));
+          ctx.fillText(o.label[Math.floor((wx - o.x) / 5) % o.label.length], 0, 0);
+          ctx.restore();
+        }
+        ctx.textAlign = 'left';
+        continue;
+      }
+
+      ctx.fillStyle = o.lit ? P.textLit : P.text;
       let lo = Infinity;
       let hi = -Infinity;
       ctx.save();
       ctx.beginPath();
       for (let wx = x0; ; wx = Math.min(wx + 4, x1)) {
-        const top = ground.height(wx);
+        const top = ground.height(wx, -Infinity);
         const base = terrainHeight(wx);
         hi = Math.max(hi, top, base);
         lo = Math.min(lo, top, base);
@@ -160,12 +219,26 @@ export function createRenderer(canvas, opts = {}) {
       const text = row.slice(skip % unit.length);
       for (let y = Math.floor(lo / ROW_U) * ROW_U; y <= hi + ROW_U; y += ROW_U) ctx.fillText(text, toX(o.x + skip * cwW), toY(y));
       ctx.restore();
+
+      if (o.kind === 'ledge' || o.kind === 'drop') {
+        ctx.strokeStyle = P.board;
+        ctx.lineWidth = LINE * 0.7;
+        ctx.beginPath();
+        for (let wx = x0; ; wx = Math.min(wx + 4, x1)) {
+          const y = toY(terrainHeight(wx) + o.height);
+          if (wx === x0) ctx.moveTo(toX(wx), y);
+          else ctx.lineTo(toX(wx), y);
+          if (wx >= x1) break;
+        }
+        ctx.stroke();
+      }
+
       // Surface line: each letter sits on the top edge and tilts with it.
       ctx.textAlign = 'center';
       for (let wx = o.x + 2 + 5 * Math.ceil((x0 - o.x - 2) / 5); wx < x1; wx += 5) {
         ctx.save();
-        ctx.translate(toX(wx), toY(ground.height(wx)));
-        ctx.rotate(-Math.atan(ground.slope(wx)));
+        ctx.translate(toX(wx), toY(ground.height(wx, -Infinity)));
+        ctx.rotate(-Math.atan(ground.slope(wx, -Infinity)));
         ctx.fillText(o.label[Math.floor((wx - o.x) / 5) % o.label.length], 0, 0);
         ctx.restore();
       }
@@ -225,6 +298,27 @@ export function createRenderer(canvas, opts = {}) {
     ctx.arc(2 * k, -84 * k, 6 * k, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
+
+    // Grind sparks behind the rear wheel at ground height, deterministically seeded by cameraX.
+    if (r.grinding) {
+      ctx.save();
+      ctx.strokeStyle = P.textLit;
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      const baseSeed = Math.floor(camX / 4);
+      const gy = toY(r.y);
+      for (let i = 0; i < 6; i++) {
+        const seed = baseSeed * 17 + i * 31;
+        const angle = 0.2 + sparkRand(seed) * 1.1;
+        const len = (6 + sparkRand(seed + 97) * 14) * sc;
+        const ox = w * RIDER_X - (10 + sparkRand(seed + 193) * 8) * sc;
+        ctx.beginPath();
+        ctx.moveTo(ox, gy);
+        ctx.lineTo(ox - Math.cos(angle) * len, gy - Math.sin(angle) * len);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     // Quiet streak indicator: one dot per clean trick in a row (max 8).
     if (t.streak > 0) {

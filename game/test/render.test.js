@@ -5,6 +5,8 @@ import { createRider } from '../lib/physics.js';
 import { createTrickState } from '../lib/tricks.js';
 import { PHASES, FLAT_PHASE } from '../lib/palette.js';
 import { placeObstacles } from '../lib/obstacles.js';
+import { height as terrainHeight } from '../lib/terrain.js';
+import { groundLine } from '../lib/layout.js';
 import { PHRASES } from '../content.js';
 
 function stubCanvas(w, h) {
@@ -156,4 +158,157 @@ test('draws all six obstacle kinds without throwing', () => {
     r.draw(frame({ obstacles: obs, cameraX }));
   }
   assert.ok(c.ctx.calls.length > 50);
+});
+
+test('a rail is drawn as a stroked bar with posts and no clipped text block', () => {
+  const drawStrokes = (obstacles) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles, cameraX: 300 }));
+    return c.ctx.calls;
+  };
+  const baseCalls = drawStrokes([]);
+  const baseStrokes = baseCalls.filter((x) => x[0] === 'stroke').length;
+
+  const narrowRail = { kind: 'rail', id: 'r1', label: 'Sharp rail', sentence: '', x: 200, width: 180, height: 26, steps: 0, lit: false };
+  const narrowCalls = drawStrokes([narrowRail]);
+  assert.equal(narrowCalls.filter((x) => x[0] === 'clip').length, 0, 'rail does not use a clipped text block');
+  const narrowStrokes = narrowCalls.filter((x) => x[0] === 'stroke').length;
+  assert.equal(narrowStrokes, baseStrokes + 3, 'narrow rail adds bar stroke plus two end posts');
+  const railText = narrowCalls.filter((x) => x[0] === 'fillText').map((x) => x[1]).join('');
+  assert.ok(railText.includes('Sharp'), 'rail draws its label letters along the bar');
+
+  const wideRail = { kind: 'rail', id: 'r2', label: 'Wide bar rail', sentence: '', x: 200, width: 260, height: 26, steps: 0, lit: true };
+  const wideCalls = drawStrokes([wideRail]);
+  assert.equal(wideCalls.filter((x) => x[0] === 'clip').length, 0, 'wide rail does not use clip');
+  const wideStrokes = wideCalls.filter((x) => x[0] === 'stroke').length;
+  assert.equal(wideStrokes, baseStrokes + 4, 'wide rail (> 200) adds a middle post');
+});
+
+test('a gap draws two face lines and no text fill inside the pit', () => {
+  const drawCalls = (obstacles) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles, cameraX: 300 }));
+    return c.ctx.calls;
+  };
+  const baseCalls = drawCalls([]);
+  const baseStrokes = baseCalls.filter((x) => x[0] === 'stroke').length;
+  const baseTexts = baseCalls.filter((x) => x[0] === 'fillText');
+
+  const gap = { kind: 'gap', id: 'g1', label: 'Mind the pit', sentence: '', x: 220, width: 180, height: 32, steps: 0, lit: false };
+  const gapCalls = drawCalls([gap]);
+  assert.equal(gapCalls.filter((x) => x[0] === 'clip').length, 0, 'gap does not use clip');
+  assert.equal(gapCalls.filter((x) => x[0] === 'fillText').length, baseTexts.length, 'gap draws no text inside the pit');
+  assert.equal(gapCalls.filter((x) => x[0] === 'stroke').length, baseStrokes + 2, 'gap draws two vertical pit face lines');
+});
+
+test('the ground silhouette ignores rails (height is sampled with fromY -Infinity)', () => {
+  const w = 800;
+  const h = 400;
+  const cameraX = 300;
+  const sc = h / 320;
+  const baseY = groundLine(h);
+  const toY = (wy) => baseY - wy * sc;
+  const fromX = (sx) => (sx - w * 0.3) / sc + cameraX;
+
+  const rail = { kind: 'rail', id: 'r1', label: 'Rail span', sentence: '', x: 200, width: 200, height: 30, steps: 0, lit: false };
+  const c = stubCanvas(w, h);
+  const r = createRenderer(c, { reducedMotion: true });
+  r.resize();
+  r.draw(frame({ obstacles: [rail], cameraX }));
+
+  // Extract all filled paths; under reducedMotion, path 0 is the hills silhouette (step 8) and path 1 is the ground fill (step 4).
+  const filledPaths = [];
+  let cur = null;
+  for (const call of c.ctx.calls) {
+    if (call[0] === 'beginPath') cur = [];
+    else if (cur && (call[0] === 'moveTo' || call[0] === 'lineTo')) cur.push(call);
+    else if (call[0] === 'fill' && cur) {
+      filledPaths.push(cur);
+      cur = null;
+    }
+  }
+  const groundFill = filledPaths[1];
+  assert.ok(groundFill && groundFill.length > 50, 'captured ground silhouette fill path');
+  const overRail = groundFill.filter((pt) => {
+    if (pt[0] !== 'lineTo') return false;
+    if (pt[2] === h) return false;
+    const wx = fromX(pt[1]);
+    return wx >= rail.x && wx <= rail.x + rail.width;
+  });
+  assert.ok(overRail.length >= 10, 'multiple ground fill samples fall within the rail span');
+  for (const [, sx, sy] of overRail) {
+    const expected = toY(terrainHeight(fromX(sx)));
+    assert.ok(Math.abs(sy - expected) < 1e-6, `ground silhouette at sx=${sx} should match terrain+0 (${expected}), got ${sy}`);
+  }
+});
+
+test('grind sparks are drawn only while grinding', () => {
+  const run = (grinding, cameraX = 350) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    const rider = createRider();
+    if (grinding === undefined) delete rider.grinding;
+    else rider.grinding = grinding;
+    r.draw(frame({ obstacles: [], rider, cameraX }));
+    return c.ctx.calls;
+  };
+  const offCalls = run(false);
+  const undefCalls = run(undefined);
+  const onCalls = run(true);
+  const onCallsRepeat = run(true);
+
+  const countStrokes = (calls) => calls.filter((x) => x[0] === 'stroke').length;
+  assert.equal(countStrokes(undefCalls), countStrokes(offCalls), 'undefined grinding draws no sparks');
+  assert.equal(countStrokes(onCalls), countStrokes(offCalls) + 6, 'grinding draws 6 spark lines');
+  assert.deepEqual(onCalls, onCallsRepeat, 'spark geometry is deterministic for the same cameraX');
+});
+
+test('ledge and drop draw a bright coping stroke on their top edge', () => {
+  const countStrokes = (obstacles) => {
+    const c = stubCanvas(800, 400);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    r.draw(frame({ obstacles, cameraX: 300 }));
+    return c.ctx.calls.filter((x) => x[0] === 'stroke').length;
+  };
+  const base = countStrokes([]);
+  const ledge = { kind: 'ledge', id: 'l', label: 'Ledge', sentence: '', x: 200, width: 160, height: 24, steps: 0, lit: false };
+  const drop = { kind: 'drop', id: 'd', label: 'Drop', sentence: '', x: 200, width: 200, height: 50, steps: 0, lit: false };
+  const ramp = { kind: 'ramp', id: 'p', label: 'Ramp', sentence: '', x: 200, width: 160, height: 40, steps: 0, lit: false };
+  assert.equal(countStrokes([ledge]), base + 1, 'ledge adds coping stroke');
+  assert.equal(countStrokes([drop]), base + 1, 'drop adds coping stroke');
+  assert.equal(countStrokes([ramp]), base, 'ramp does not add coping stroke');
+});
+
+test('drawing at heights 1, 280 and 900 with all six kinds never passes NaN to the context', () => {
+  const obs = [
+    { kind: 'ramp', id: 'a', label: 'Ramp one', sentence: '', x: 100, width: 160, height: 40, steps: 0, lit: false },
+    { kind: 'ledge', id: 'b', label: 'Ledge two', sentence: '', x: 350, width: 140, height: 24, steps: 0, lit: true },
+    { kind: 'stairs', id: 'c', label: 'Stairs three', sentence: '', x: 600, width: 200, height: 40, steps: 4, lit: false },
+    { kind: 'drop', id: 'd', label: 'Drop four', sentence: '', x: 900, width: 220, height: 55, steps: 0, lit: true },
+    { kind: 'rail', id: 'e', label: 'Rail five', sentence: '', x: 1200, width: 240, height: 26, steps: 0, lit: true },
+    { kind: 'gap', id: 'f', label: 'Gap six', sentence: '', x: 1500, width: 200, height: 32, steps: 0, lit: false },
+  ];
+  for (const h of [1, 280, 900]) {
+    const c = stubCanvas(800, h);
+    const r = createRenderer(c, { reducedMotion: false });
+    r.resize();
+    for (const cameraX of [0, 120, 420, 700, 1020, 1320, 1620, 1720]) {
+      const rider = { ...createRider(), x: cameraX, grinding: true };
+      r.draw(frame({ obstacles: obs, cameraX, rider }));
+    }
+    assert.ok(c.ctx.calls.length > 0, `drew calls at height ${h}`);
+    for (const call of c.ctx.calls) {
+      for (const arg of call.slice(1)) {
+        if (typeof arg === 'number') {
+          assert.ok(Number.isFinite(arg), `non-finite numeric arg in ${call[0]}(${call.slice(1).join(', ')}) at height ${h}`);
+        }
+      }
+    }
+  }
 });
