@@ -1,7 +1,14 @@
 import { height as terrainHeight, slope as terrainSlope } from './terrain.js';
 
-const PLATFORM = 0.3; // share of a stairs obstacle that is the top platform
 const RAIL_SNAP = 2; // vertical margin below a rail bar that still counts as above it
+
+// Steep stairs geometry: tread depth about equal to the riser, capped at 70% of the obstacle width.
+export function stairGeometry(ob) {
+  const riser = ob.height / (ob.steps + 1);
+  const stepW = Math.min(1.2 * riser, (0.7 * ob.width) / ob.steps);
+  const platformW = ob.width - ob.steps * stepW;
+  return { platformW, stepW, riser };
+}
 
 // Height an obstacle adds to the terrain at world x (0 outside its span).
 export function offsetAt(ob, x, fromY = Infinity) {
@@ -11,9 +18,8 @@ export function offsetAt(ob, x, fromY = Infinity) {
   if (ob.kind === 'ramp') return (ob.height * u) / ob.width;
   if (ob.kind === 'ledge' || ob.kind === 'drop') return ob.height;
   if (ob.kind === 'rail') return fromY >= terrainHeight(x) + ob.height - RAIL_SNAP ? ob.height : 0;
-  const platformW = PLATFORM * ob.width;
+  const { platformW, stepW } = stairGeometry(ob);
   if (u < platformW) return ob.height;
-  const stepW = (ob.width - platformW) / ob.steps;
   const i = Math.min(ob.steps, Math.floor((u - platformW) / stepW) + 1);
   return (ob.height * (ob.steps + 1 - i)) / (ob.steps + 1);
 }
@@ -64,8 +70,7 @@ export function risers(ob) {
   if (ob.kind === 'ledge' || ob.kind === 'drop') return [{ x: ob.x, from: 0, to: ob.height }, { x: ob.x + ob.width, from: 0, to: ob.height }];
   if (ob.kind === 'rail') return [];
   if (ob.kind === 'gap') return [{ x: ob.x, from: 0, to: -ob.height }, { x: ob.x + ob.width, from: -ob.height, to: 0 }];
-  const platformW = PLATFORM * ob.width;
-  const stepW = (ob.width - platformW) / ob.steps;
+  const { platformW, stepW } = stairGeometry(ob);
   const level = (i) => (i > ob.steps ? 0 : (ob.height * (ob.steps + 1 - i)) / (ob.steps + 1));
   const out = [{ x: ob.x, from: 0, to: ob.height }];
   for (let j = 0; j <= ob.steps; j++) out.push({ x: ob.x + platformW + j * stepW, from: level(j + 1), to: level(j) });

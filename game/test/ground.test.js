@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { offsetAt, offsetSlope, createGround } from '../lib/ground.js';
+import { offsetAt, offsetSlope, createGround, risers, stairGeometry } from '../lib/ground.js';
 import { height, slope } from '../lib/terrain.js';
+import { placeObstacles } from '../lib/obstacles.js';
+import { createRider, stepRider } from '../lib/physics.js';
+import { PHRASES } from '../content.js';
 
 const ramp = { kind: 'ramp', x: 1000, width: 200, height: 50, steps: 0 };
 const ledge = { kind: 'ledge', x: 1000, width: 200, height: 20, steps: 0 };
@@ -24,11 +27,12 @@ test('ledge holds its height across the span and is 0 outside', () => {
 });
 
 test('stairs: platform then treads strictly descending, last tread is height over steps+1', () => {
-  assert.equal(offsetAt(stairs, 1050), 40); // platform is the first 0.3 * 400 = 120
-  const stepW = (400 - 120) / 4;
+  const { platformW, stepW } = stairGeometry(stairs);
+  assert.equal(offsetAt(stairs, 1050), 40);
+  assert.equal(offsetAt(stairs, 1000 + platformW - 0.5), 40);
   let prev = 40;
   for (let i = 1; i <= 4; i++) {
-    const v = offsetAt(stairs, 1000 + 120 + (i - 0.5) * stepW);
+    const v = offsetAt(stairs, 1000 + platformW + (i - 0.5) * stepW);
     assert.ok(v < prev, `tread ${i}`);
     prev = v;
   }
@@ -57,8 +61,6 @@ test('ground over a ledge is terrain plus its height, and slope over a ramp adds
   assert.ok(Math.abs(g.height(500) - height(500)) < 1e-9);
   assert.ok(Math.abs(g.slope(3100) - (slope(3100) + 0.25)) < 1e-9);
 });
-
-import { risers } from '../lib/ground.js';
 
 test('risers: a ramp has one at its lip', () => {
   assert.deepEqual(risers(ramp), [{ x: 1200, from: 0, to: 50 }]);
@@ -148,4 +150,93 @@ test('height and slope with one argument behave as before', () => {
   assert.ok(Math.abs(g.slope(3100) - (slope(3100) + 0.25)) < 1e-9);
   assert.ok(Math.abs(g.height(4100) - (height(4100) + 26)) < 1e-9);
   assert.ok(Math.abs(g.slope(4100) - slope(4100)) < 1e-9);
+});
+
+const placedStairs = placeObstacles(PHRASES, 0, 60000).filter((o) => o.kind === 'stairs');
+
+test('stair treads are no deeper than 1.2 times their riser (steep, unless capped by the obstacle width)', () => {
+  assert.ok(placedStairs.length > 0, 'found stairs obstacles in 0..60000');
+  for (const ob of placedStairs) {
+    const { stepW, riser } = stairGeometry(ob);
+    assert.ok(Math.abs(riser - ob.height / (ob.steps + 1)) < 1e-9);
+    assert.ok(stepW <= 1.2 * riser + 1e-9, `stepW ${stepW} exceeds 1.2 * riser ${1.2 * riser}`);
+    assert.ok(stepW <= (0.7 * ob.width) / ob.steps + 1e-9, `stepW ${stepW} exceeds 70% width cap`);
+    assert.ok(Math.abs(stepW - Math.min(1.2 * riser, (0.7 * ob.width) / ob.steps)) < 1e-9);
+  }
+  const narrow = { kind: 'stairs', x: 1000, width: 30, height: 60, steps: 4 };
+  const ng = stairGeometry(narrow);
+  assert.ok(Math.abs(ng.stepW - (0.7 * narrow.width) / narrow.steps) < 1e-9, 'narrow stairs cap descent at 70% of width');
+  assert.ok(Math.abs(ng.platformW - 0.3 * narrow.width) < 1e-9, 'narrow stairs keep 30% platform');
+});
+
+test('the platform is at least 30% of the width for every stairs obstacle in that range', () => {
+  assert.ok(placedStairs.length > 0);
+  for (const ob of placedStairs) {
+    const { platformW, stepW } = stairGeometry(ob);
+    assert.ok(platformW >= 0.3 * ob.width - 1e-9, `platformW ${platformW} < 30% of ${ob.width}`);
+    assert.ok(Math.abs(platformW + ob.steps * stepW - ob.width) < 1e-9);
+  }
+});
+
+test('risers() returns one vertical face per tread boundary at the new tread spacing', () => {
+  const { platformW, stepW, riser } = stairGeometry(stairs);
+  const r = risers(stairs);
+  assert.equal(r.length, stairs.steps + 2);
+  assert.deepEqual(r[0], { x: stairs.x, from: 0, to: stairs.height });
+  for (let j = 0; j <= stairs.steps; j++) {
+    const face = r[j + 1];
+    const expectedX = stairs.x + platformW + j * stepW;
+    const expectedTo = stairs.height - j * riser;
+    const expectedFrom = j === stairs.steps ? 0 : stairs.height - (j + 1) * riser;
+    assert.ok(Math.abs(face.x - expectedX) < 1e-9, `riser ${j} x=${face.x} expected ${expectedX}`);
+    assert.ok(Math.abs(face.to - expectedTo) < 1e-9, `riser ${j} to=${face.to} expected ${expectedTo}`);
+    assert.ok(Math.abs(face.from - expectedFrom) < 1e-9, `riser ${j} from=${face.from} expected ${expectedFrom}`);
+    if (j > 0) assert.ok(Math.abs(face.x - r[j].x - stepW) < 1e-9, `spacing between riser ${j - 1} and ${j}`);
+  }
+});
+
+test('offsetAt descends strictly by one riser per tread', () => {
+  for (const ob of [stairs, ...placedStairs.slice(0, 6)]) {
+    const { platformW, stepW, riser } = stairGeometry(ob);
+    assert.equal(offsetAt(ob, ob.x), ob.height);
+    assert.equal(offsetAt(ob, ob.x + platformW - 1e-6), ob.height);
+    let prev = ob.height;
+    for (let i = 1; i <= ob.steps; i++) {
+      const mid = offsetAt(ob, ob.x + platformW + (i - 0.5) * stepW);
+      assert.ok(Math.abs(prev - mid - riser) < 1e-9, `tread ${i} drop ${prev - mid} vs riser ${riser}`);
+      prev = mid;
+    }
+    assert.ok(Math.abs(prev - riser) < 1e-9, 'last tread sits one riser above ground');
+    assert.equal(offsetAt(ob, ob.x + ob.width + 1e-6), 0);
+  }
+});
+
+test('a rider riding down the staircase never ends below the ground and never gets stuck', () => {
+  const dt = 1 / 60;
+  const speed = 640;
+  for (const ob of [stairs, ...placedStairs]) {
+    const ground = createGround([ob]);
+    const startX = ob.x + 10;
+    let rider = {
+      ...createRider(),
+      x: startX,
+      y: ground.height(startX),
+      angle: Math.atan(ground.slope(startX)),
+      grounded: true,
+    };
+    const endX = ob.x + ob.width + 400;
+    let steps = 0;
+    while (rider.x < endX && steps < 600) {
+      const prevX = rider.x;
+      const prevY = rider.y;
+      rider = stepRider(rider, { ollieDown: false }, dt, speed, ground);
+      steps++;
+      assert.ok(Number.isFinite(rider.x) && Number.isFinite(rider.y), 'finite position');
+      assert.ok(rider.x > prevX, `rider stuck at x=${rider.x}`);
+      const g = ground.height(rider.x, prevY);
+      assert.ok(rider.y >= g - 1e-9, `rider y=${rider.y} below ground ${g} at x=${rider.x}`);
+    }
+    assert.ok(rider.x >= endX, `rider cleared staircase in ${steps} steps`);
+    assert.equal(rider.grounded, true, 'rider lands cleanly after the staircase');
+  }
 });
