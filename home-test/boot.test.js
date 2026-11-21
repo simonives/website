@@ -24,19 +24,30 @@ function runBoot(location) {
   const source = fs.readFileSync(BOOT_URL, 'utf8');
   const calls = [];
   const attrs = new Map();
+  const timers = [];
   const context = {
     location,
+    setTimeout(fn, ms) {
+      timers.push({ fn, ms });
+      return timers.length;
+    },
     document: {
       documentElement: {
         setAttribute(name, value) {
           calls.push([name, value]);
           attrs.set(name, value);
         },
+        hasAttribute(name) {
+          return attrs.has(name);
+        },
+        removeAttribute(name) {
+          attrs.delete(name);
+        },
       },
     },
   };
   vm.runInNewContext(source, context, { filename: 'home-boot.js' });
-  return { calls, attrs };
+  return { calls, attrs, timers };
 }
 
 describe('home-boot.js', () => {
@@ -95,6 +106,35 @@ describe('home-boot.js', () => {
     assert.doesNotMatch(source, /^\s*(import|export)\b/m);
     assert.doesNotThrow(() => {
       new vm.Script(source, { filename: 'home-boot.js' });
+    });
+  });
+
+  describe('4000ms failsafe', () => {
+    it('removes data-home after 4000ms when data-home-ready is absent', () => {
+      const { attrs, timers } = runBoot({ pathname: '/', hash: '' });
+      assert.equal(attrs.get('data-home'), 'game');
+      assert.equal(timers.length, 1);
+      assert.equal(timers[0].ms, 4000);
+
+      timers[0].fn();
+      assert.equal(attrs.has('data-home'), false);
+    });
+
+    it('keeps data-home after 4000ms when data-home-ready is present', () => {
+      const { attrs, timers } = runBoot({ pathname: '/', hash: '' });
+      assert.equal(attrs.get('data-home'), 'game');
+      assert.equal(timers.length, 1);
+      assert.equal(timers[0].ms, 4000);
+
+      attrs.set('data-home-ready', '');
+      timers[0].fn();
+      assert.equal(attrs.get('data-home'), 'game');
+    });
+
+    it('does not schedule the failsafe timer when initial state is site', () => {
+      const { attrs, timers } = runBoot({ pathname: '/', hash: '#site' });
+      assert.equal(attrs.get('data-home'), 'site');
+      assert.equal(timers.length, 0);
     });
   });
 });

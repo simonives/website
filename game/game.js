@@ -306,6 +306,7 @@ export function mountSkateGame(canvas, options = {}) {
   return {
     pause() { setUserPaused(true); },
     resume() { setUserPaused(false); },
+    isPaused() { return why.user; },
     destroy() {
       destroyed = true;
       cancelAnimationFrame(raf);

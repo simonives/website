@@ -61,6 +61,7 @@ Positioning in one line: a practitioner, an intellectual, and a builder at once,
 - **Current role:** Principal, HR Technology Strategy at BHP
 - **Based in:** Australia
 - **Canonical site:** https://simonives.com
+- **Site entry:** The homepage opens on a skateboard game; the full site is available from the Menu button, or directly at https://simonives.com/#site.
 - **Publication:** Phronesis, https://enterprisephronesis.substack.com
 - **LinkedIn:** https://www.linkedin.com/in/simonives
 - **GitHub:** https://github.com/simonives

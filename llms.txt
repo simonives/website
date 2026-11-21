@@ -28,6 +28,7 @@ The canonical record `simonives.md` is additionally referenced from every page t
 ## Pages
 
 - [Home](https://simonives.com/) — Practitioner identity, positioning, and entry point to the site.
+  The homepage opens on a skateboard game; the full site is available from the Menu button, or directly at https://simonives.com/#site.
 - [Approach](https://simonives.com/doctrine.html) — The three foundational practices: Socratic inquiry, utilitarian systems design, and the polyrhythm of transformation.
 - [Track Record](https://simonives.com/portfolio.html) — Career record across AI governance, architecture governance, platform delivery, and people data intelligence.
 - [Now](https://simonives.com/now.html) — Current focus, active work, and what is occupying attention at BHP.

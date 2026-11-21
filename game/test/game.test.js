@@ -634,3 +634,45 @@ test('announces Calm motion on and Full motion on', async () => {
     }
   });
 });
+
+test('isPaused reflects the user-pause flag and ignores hidden/offscreen state', async () => {
+  await withFakeDom(({ root, canvas, doc, setIntersecting }) => {
+    const game = mountSkateGame(canvas, { reducedMotion: false });
+    try {
+      const controls = root.children.find((el) => el.className === 'skate-controls');
+      const [pauseBtn] = controls.children;
+
+      assert.equal(game.isPaused(), false, 'full motion starts unpaused');
+
+      game.pause();
+      assert.equal(game.isPaused(), true, 'pause() sets user-pause flag');
+
+      game.resume();
+      assert.equal(game.isPaused(), false, 'resume() clears user-pause flag');
+
+      pauseBtn.dispatchEvent(new Event('click'));
+      assert.equal(game.isPaused(), true, 'Pause button sets user-pause flag');
+
+      pauseBtn.dispatchEvent(new Event('click'));
+      assert.equal(game.isPaused(), false, 'Resume button clears user-pause flag');
+
+      doc.hidden = true;
+      doc.dispatchEvent(new Event('visibilitychange'));
+      setIntersecting(false);
+      assert.equal(game.isPaused(), false, 'hidden and offscreen do not change user-pause flag');
+    } finally {
+      game.destroy();
+    }
+  }, { intersectionObserver: true });
+
+  await withFakeDom(({ canvas }) => {
+    const game = mountSkateGame(canvas, { reducedMotion: true });
+    try {
+      assert.equal(game.isPaused(), true, 'reduced motion starts paused');
+      game.resume();
+      assert.equal(game.isPaused(), false, 'resume() clears initial reduced-motion pause');
+    } finally {
+      game.destroy();
+    }
+  });
+});
